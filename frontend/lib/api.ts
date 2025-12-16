@@ -1,0 +1,91 @@
+// API configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+export const api = {
+  baseURL: API_BASE_URL,
+  
+  // Helper function to make API calls
+  async fetch(endpoint: string, options?: RequestInit) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.error || 'Unknown error'}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Failed to connect to server at ${url}. Make sure the server is running.`);
+      }
+      throw error;
+    }
+  },
+
+  // Orders API
+  orders: {
+    getAll: () => api.fetch('/api/orders'),
+    getById: (id: number | string) => api.fetch(`/api/orders/${id}`),
+  },
+
+  // Offers API
+  offers: {
+    create: (data: any) => api.fetch('/api/offers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+    getAll: () => api.fetch('/api/offers'),
+    getById: (id: number | string) => api.fetch(`/api/offers/${id}`),
+    update: (id: number | string, data: any) => api.fetch(`/api/offers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+    delete: (id: number | string) => api.fetch(`/api/offers/${id}`, {
+      method: 'DELETE',
+    }),
+  },
+
+  // Upload API
+  upload: {
+    componentImage: async (componentId: string, file: File) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      // Also append componentId as form field (multer should parse it)
+      formData.append('componentId', componentId);
+
+      // Pass componentId as query parameter as backup
+      const url = `${API_BASE_URL}/api/upload/component-image?componentId=${encodeURIComponent(componentId)}`;
+      
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.error || 'Unknown error'}`);
+        }
+
+        return response.json();
+      } catch (error) {
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          throw new Error(`Failed to connect to server at ${url}. Make sure the server is running.`);
+        }
+        throw error;
+      }
+    },
+  },
+};
+
+export default api;
+
