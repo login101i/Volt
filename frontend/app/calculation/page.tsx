@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -614,7 +614,10 @@ function ComponentItem({
   );
 }
 
-export default function CalculationPage() {
+// Force dynamic rendering to avoid static export issues with useSearchParams
+export const dynamic = 'force-dynamic';
+
+function CalculationPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const offerIdFromUrl = searchParams.get('offerId');
@@ -3125,5 +3128,20 @@ export default function CalculationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CalculationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Ładowanie...</p>
+        </div>
+      </div>
+    }>
+      <CalculationPageContent />
+    </Suspense>
   );
 }
