@@ -17,14 +17,11 @@ Plik `amplify.yml` został już utworzony w głównym katalogu projektu. Zawiera
 
 W AWS Amplify Console, w sekcji **App settings** → **Build settings**:
 
-- **Build command**: Zostaw PUSTE (używamy amplify.yml)
-- **Output directory**: Zostaw PUSTE (AWS Amplify automatycznie wykryje Next.js)
+- **Build command**: `npm run build`
+- **Output directory**: `dist`
 - **Base directory**: `frontend` (opcjonalnie)
 
-**WAŻNE**: 
-- AWS Amplify automatycznie wykrywa Next.js i używa odpowiedniej konfiguracji
-- Nie ustawiaj ręcznie Output directory - Amplify automatycznie użyje struktury `.next`
-- Plik `amplify.yml` jest już skonfigurowany poprawnie
+**WAŻNE**: Plik `amplify.yml` jest już skonfigurowany i automatycznie używa tych ustawień. Możesz również ustawić je ręcznie w konsoli Amplify.
 
 ### 3. Zmienne środowiskowe
 
@@ -104,8 +101,9 @@ Możesz hostować backend na EC2 lub ECS, ale to bardziej skomplikowane rozwiąz
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // AWS Amplify automatycznie wykrywa Next.js i używa odpowiedniej konfiguracji
-  // Nie używamy distDir: 'dist' bo Amplify potrzebuje domyślnej struktury .next
+  // Dla AWS Amplify: zmieniamy distDir na 'dist' zamiast domyślnego '.next'
+  // To pozwala na działanie API routes jako serverless functions
+  distDir: 'dist',
   images: {
     unoptimized: true,
   },
@@ -116,9 +114,8 @@ export default nextConfig;
 
 **Ważne zmiany:**
 - ✅ Usunięto `output: 'standalone'` (było dla Electron)
-- ✅ Usunięto `distDir: 'dist'` - AWS Amplify używa domyślnej struktury `.next`
+- ✅ Dodano `distDir: 'dist'` aby Next.js budował do folderu `dist`
 - ✅ API routes (`/api/proxy/[...path]`) będą działać jako serverless functions w Amplify
-- ✅ AWS Amplify automatycznie obsługuje Next.js SSR/SSG bez dodatkowej konfiguracji
 
 **Usunięto również pakiet specyficzny dla Windows:**
 - ✅ Usunięto `@next/swc-win32-x64-msvc` z `package.json` (nie działa na Linux w Amplify)
