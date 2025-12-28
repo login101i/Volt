@@ -25,18 +25,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Trial Period Notification Bar */}
-      <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-3 relative z-20">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="text-sm text-gray-700">
-            <span className="font-semibold">Okres próbny: 7 dni lub 4 akcje</span>
-            <span className="ml-2">Akcja = nowa oferta, email, PDF lub druk etykiet</span>
-          </div>
-          <button className="px-4 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm font-semibold">
-            PRO
-          </button>
-        </div>
-      </div>
+    
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12 relative z-10">
