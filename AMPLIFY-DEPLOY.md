@@ -17,11 +17,11 @@ Plik `amplify.yml` został już utworzony w głównym katalogu projektu. Zawiera
 
 W AWS Amplify Console, w sekcji **App settings** → **Build settings**:
 
-- **Build command**: `npm run build` (lub zostaw puste, jeśli używasz amplify.yml)
-- **Output directory**: `frontend/.next` (lub zostaw puste, jeśli używasz amplify.yml)
-- **Base directory**: `frontend` (opcjonalnie, jeśli chcesz budować tylko z folderu frontend)
+- **Build command**: `npm run build`
+- **Output directory**: `dist`
+- **Base directory**: `frontend` (opcjonalnie)
 
-**WAŻNE**: Jeśli używasz pliku `amplify.yml`, możesz zostawić te pola puste - Amplify użyje konfiguracji z pliku.
+**WAŻNE**: Plik `amplify.yml` jest już skonfigurowany i automatycznie używa tych ustawień. Możesz również ustawić je ręcznie w konsoli Amplify.
 
 ### 3. Zmienne środowiskowe
 
@@ -95,17 +95,15 @@ Możesz hostować backend na EC2 lub ECS, ale to bardziej skomplikowane rozwiąz
 
 ## Konfiguracja Next.js dla Amplify
 
-**WAŻNE**: Plik `frontend/next.config.ts` obecnie ma `output: 'standalone'` dla Electron. Dla AWS Amplify musisz to zmienić!
+**✅ ZROBIONE**: Plik `frontend/next.config.ts` został już zaktualizowany dla AWS Amplify:
 
-### Opcja A: Usunąć `output: 'standalone'` (Rekomendowane)
-
-Edytuj `frontend/next.config.ts`:
 ```typescript
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Usuń linię: output: 'standalone',
-  // AWS Amplify używa domyślnej konfiguracji Next.js z API routes jako serverless functions
+  // Dla AWS Amplify: zmieniamy distDir na 'dist' zamiast domyślnego '.next'
+  // To pozwala na działanie API routes jako serverless functions
+  distDir: 'dist',
   images: {
     unoptimized: true,
   },
@@ -114,27 +112,13 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
-### Opcja B: Użyć warunkowej konfiguracji (jeśli potrzebujesz Electron)
+**Ważne zmiany:**
+- ✅ Usunięto `output: 'standalone'` (było dla Electron)
+- ✅ Dodano `distDir: 'dist'` aby Next.js budował do folderu `dist`
+- ✅ API routes (`/api/proxy/[...path]`) będą działać jako serverless functions w Amplify
 
-Jeśli nadal potrzebujesz Electron, użyj warunkowej konfiguracji:
-
-```typescript
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  // Tylko dla Electron, nie dla Amplify
-  ...(process.env.ELECTRON_BUILD ? { output: 'standalone' } : {}),
-  images: {
-    unoptimized: true,
-  },
-};
-
-export default nextConfig;
-```
-
-**Uwaga**: Jeśli używasz `output: 'standalone'`, musisz również zaktualizować `amplify.yml`:
-- Zmień `baseDirectory` na `frontend/.next/standalone`
-- Ale to nie jest zalecane dla Amplify - lepiej użyć domyślnej konfiguracji Next.js
+**Usunięto również pakiet specyficzny dla Windows:**
+- ✅ Usunięto `@next/swc-win32-x64-msvc` z `package.json` (nie działa na Linux w Amplify)
 
 ## Proxy API Routes
 

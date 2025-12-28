@@ -8,12 +8,11 @@ frontend:
         - npm ci --cache .npm --prefer-offline
     build:
       commands:
-        # Build Next.js frontend
+        # Build Next.js frontend (output będzie w frontend/dist dzięki distDir w next.config.ts)
         - npm run build
   artifacts:
-    # AWS Amplify automatycznie wykryje Next.js i użyje odpowiedniej konfiguracji
-    # Jeśli używasz output: 'standalone', zmień baseDirectory na: frontend/.next/standalone
-    baseDirectory: frontend
+    # Output directory: dist (zgodnie z distDir w next.config.ts)
+    baseDirectory: frontend/dist
     files:
       - '**/*'
   cache:

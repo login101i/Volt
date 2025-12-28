@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Electron
-  output: 'standalone',
-  // Disable image optimization for Electron (optional, can improve build times)
+  // Dla AWS Amplify: zmieniamy distDir na 'dist' zamiast domyślnego '.next'
+  // To pozwala na działanie API routes jako serverless functions
+  distDir: 'dist',
+  // Disable image optimization
   images: {
     unoptimized: true,
   },
