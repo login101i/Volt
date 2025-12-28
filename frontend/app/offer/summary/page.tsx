@@ -215,67 +215,67 @@ function OfferSummaryPageContent() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Podsumowanie Oferty</h1>
+      <div className="max-w-6xl mx-auto px-4 py-4">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Podsumowanie Oferty</h1>
         
         {/* Informacje o Kliencie */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Informacje o Kliencie</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Informacje o Kliencie</h2>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm text-gray-600">Nazwa/Nazwisko:</label>
-              <p className="text-gray-900 font-medium">
+              <label className="text-xs text-gray-600">Nazwa/Nazwisko:</label>
+              <p className="text-sm text-gray-900 font-medium">
                 {offer.clientData?.investmentName || 'Nie podano'}
               </p>
             </div>
             <div>
-              <label className="text-sm text-gray-600">Email:</label>
-              <p className="text-gray-900 font-medium">{offer.clientData?.email || '-'}</p>
+              <label className="text-xs text-gray-600">Email:</label>
+              <p className="text-sm text-gray-900 font-medium">{offer.clientData?.email || '-'}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-600">Telefon:</label>
-              <p className="text-gray-900 font-medium">{offer.clientData?.phone || '-'}</p>
+              <label className="text-xs text-gray-600">Telefon:</label>
+              <p className="text-sm text-gray-900 font-medium">{offer.clientData?.phone || '-'}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-600">Powierzchnia:</label>
-              <p className="text-gray-900 font-medium">{offer.property?.area || 0} m²</p>
+              <label className="text-xs text-gray-600">Powierzchnia:</label>
+              <p className="text-sm text-gray-900 font-medium">{offer.property?.area || 0} m²</p>
             </div>
           </div>
         </div>
 
         {/* Obwody z Kalkulacji */}
         {offer.circuits && Array.isArray(offer.circuits) && offer.circuits.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Obwody Elektryczne</h2>
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Obwody Elektryczne</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nr</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opis</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ilość gniazd/włączników</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strefa</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Napięcie</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Przewód</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moc [kW]</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Typ bezpiecznika</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faza</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Typ</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nr</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Opis</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ilość</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strefa</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Napięcie</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Przewód</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Moc</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bezpiecznik</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Faza</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Typ</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {offer.circuits.map((circuit: any, index: number) => (
                     <tr key={index} className={index >= 6 && index < 12 ? 'bg-orange-50' : ''}>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.circuitNumber}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{circuit.description}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.socketSwitchCount || 0}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.zone}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.voltage} V</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{circuit.cable}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.power}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.fuseType}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.phase}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{circuit.type}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.circuitNumber}</td>
+                      <td className="px-2 py-2 text-xs text-gray-900">{circuit.description}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.socketSwitchCount || 0}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.zone}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.voltage}V</td>
+                      <td className="px-2 py-2 text-xs text-gray-900">{circuit.cable}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.power}kW</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.fuseType}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.phase}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">{circuit.type}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -285,245 +285,44 @@ function OfferSummaryPageContent() {
         )}
 
         
-        {/* Wycena */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Wycena</h2>
-            <div className="text-sm text-gray-600">
-              Suma punktów: <span className="font-semibold text-gray-900">{totalPoints} pkt</span>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-700">Cena za punkt:</label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  value={pricePerPoint}
-                  onChange={(e) => setPricePerPoint(parseFloat(e.target.value) || 0)}
-                  className="w-24 px-3 py-1 border border-gray-300 rounded text-gray-900 text-right"
-                />
-                <span className="text-sm text-gray-600">zł netto</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-700">Wartość punktów:</label>
-              <span className="text-lg font-semibold text-green-600">
-                {pointsValue.toFixed(2)} zł netto
-              </span>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm text-gray-700">Wartość przewodów:</label>
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg font-semibold text-green-600">
-                    {effectiveWireValue.toFixed(2)} zł netto
-                  </span>
-                  {calculatedWireValue === 0 && (
-                    <input
-                      type="number"
-                      value={wireValue}
-                      onChange={(e) => setWireValue(parseFloat(e.target.value) || 0)}
-                      className="w-32 px-3 py-1 border border-gray-300 rounded text-gray-900 text-right"
-                      placeholder="Ręcznie"
-                    />
-                  )}
-                </div>
-              </div>
-              
-              {/* Wire value breakdown by type */}
-              {Object.keys(wireTypeBreakdown).length > 0 && (
-                <div className="ml-4 mt-3 space-y-3 border-l-2 border-gray-200 pl-4">
-                  <div className="text-sm font-semibold text-gray-700 mb-2">Podział według typu przewodu:</div>
-                  {Object.entries(wireTypeBreakdown).map(([cableType, data]) => (
-                    <div key={cableType} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-700">
-                            {cableType}
-                          </span>
-                          {data.totalLength > 0 && (
-                            <span className="text-xs text-gray-500 ml-2">
-                              ({data.totalLength.toFixed(0)} m)
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <label className="text-xs text-gray-600 whitespace-nowrap">Cena za m:</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={data.pricePerMeter || ''}
-                          onChange={(e) => handleWireTypePriceChange(cableType, parseFloat(e.target.value) || 0)}
-                          className="w-24 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 text-right"
-                          placeholder="0.00"
-                        />
-                        <span className="text-xs text-gray-600">zł/m</span>
-                        {data.value > 0 && (
-                          <span className="text-sm font-semibold text-green-600 ml-auto">
-                            = {data.value.toFixed(2)} zł
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {calculatedWireValue > 0 && (
-                    <div className="mt-3 pt-2 border-t border-gray-200">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-semibold text-gray-700">Suma przewodów:</span>
-                        <span className="text-base font-bold text-green-600">
-                          {calculatedWireValue.toFixed(2)} zł netto
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-700">
-                Koszt podłączenia rozdzielnicy ({totalPoints} zabezpieczeń):
-              </label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  value={connectionCost}
-                  onChange={(e) => setConnectionCost(parseFloat(e.target.value) || 0)}
-                  className="w-32 px-3 py-1 border border-gray-300 rounded text-gray-900 text-right"
-                />
-                <span className="text-sm text-gray-600">zł netto</span>
-              </div>
-            </div>
-            
-            {/* Custom Items */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <label className="text-sm font-medium text-gray-700 mb-3 block">
-                + Dodaj pozycję:
-              </label>
-              <div className="flex space-x-3 mb-4">
-                <input
-                  type="text"
-                  value={newCustomItem.name}
-                  onChange={(e) => setNewCustomItem({ ...newCustomItem, name: e.target.value })}
-                  placeholder="Np. Domofon"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400"
-                />
-                <input
-                  type="number"
-                  value={newCustomItem.price}
-                  onChange={(e) => setNewCustomItem({ ...newCustomItem, price: e.target.value })}
-                  placeholder="Cena (zł netto)"
-                  className="w-40 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400"
-                />
-                <button
-                  onClick={handleAddCustomItem}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                >
-                  Dodaj
-                </button>
-              </div>
-              
-              {customItems.map(item => (
-                <div key={item.id} className="flex justify-between items-center mb-2">
-                  <span className="text-gray-700">{item.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-900">{item.price.toFixed(2)} zł netto</span>
-                    <button
-                      onClick={() => handleDeleteCustomItem(item.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Totals */}
-            <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-gray-900">Suma netto:</span>
-                <span className="text-xl font-bold text-green-600">{netTotal.toFixed(2)} zł</span>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-700">VAT:</span>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      checked={vatRate === 8}
-                      onChange={() => setVatRate(8)}
-                      className="text-purple-600"
-                    />
-                    <span className="text-sm">8%</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      checked={vatRate === 23}
-                      onChange={() => setVatRate(23)}
-                      className="text-purple-600"
-                    />
-                    <span className="text-sm">23%</span>
-                  </label>
-                </div>
-                <span className="text-lg font-semibold text-green-600">
-                  {vatAmount.toFixed(2)} zł
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                <span className="text-xl font-semibold text-gray-900">Suma brutto:</span>
-                <span className="text-2xl font-bold text-green-600">{grossTotal.toFixed(2)} zł</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         {/* Wymagane Komponenty */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Wymagane Komponenty</h2>
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Wymagane Komponenty</h2>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-700">
+              <span className="text-xs text-gray-700">
                 Wielkość rozdzielnicy (z zapasem 30%):
               </span>
-              <span className="text-blue-600 font-semibold">
+              <span className="text-xs text-blue-600 font-semibold">
                 {offer.components?.distributionBoardSize || 0} pól
               </span>
             </div>
             
             {/* Combined list: Fuse types from circuits + Manually added components */}
             {allRequiredComponents.length > 0 ? (
-              <div className="space-y-3 mt-4">
+              <div className="space-y-2 mt-3">
                 {allRequiredComponents.map((comp, index) => (
-                  <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-2">
+                  <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-1.5">
                     <div className="flex-1">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-xs text-gray-700">
                         {comp.name}
                         {comp.fields !== undefined && comp.fields > 0 && (
                           <span className="text-gray-500 ml-1">({comp.fields} {comp.fields === 1 ? 'pole' : 'pola'})</span>
                         )}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-sm font-medium text-gray-900">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xs font-medium text-gray-900">
                         {comp.quantity} szt.
                       </span>
                       {comp.price !== undefined && comp.price > 0 && (
-                        <span className="text-sm text-gray-600">
+                        <span className="text-xs text-gray-600">
                           ~{comp.price.toFixed(2)} zł
                         </span>
                       )}
                       {comp.totalPrice !== undefined && comp.totalPrice > 0 && (
-                        <span className="text-sm font-semibold text-green-600">
+                        <span className="text-xs font-semibold text-green-600">
                           {comp.totalPrice.toFixed(2)} zł
                         </span>
                       )}
@@ -532,17 +331,17 @@ function OfferSummaryPageContent() {
                 ))}
                 {/* Total components cost */}
                 {totalComponentsCost > 0 && (
-                  <div className="mt-4 pt-4 border-t-2 border-gray-300">
+                  <div className="mt-3 pt-3 border-t-2 border-gray-300">
                     <div className="flex justify-between items-center">
-                      <span className="text-base font-semibold text-gray-900">Suma komponentów:</span>
-                      <span className="text-lg font-bold text-green-600">{totalComponentsCost.toFixed(2)} zł netto</span>
+                      <span className="text-sm font-semibold text-gray-900">Suma komponentów:</span>
+                      <span className="text-base font-bold text-green-600">{totalComponentsCost.toFixed(2)} zł netto</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">Ceny przybliżone</div>
+                    <div className="text-xs text-gray-500 mt-0.5">Ceny przybliżone</div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-sm text-gray-500 mt-4">
+              <div className="text-xs text-gray-500 mt-3">
                 Brak wymaganych komponentów
               </div>
             )}
@@ -553,55 +352,262 @@ function OfferSummaryPageContent() {
               const fuseIds = ['fuse16A', 'fuse10A', 'fuse20A', 'fuse25A'];
               return !fuseIds.includes(comp.id);
             }).map((comp: any) => (
-              <div key={comp.id} className="flex justify-between items-center border-b border-gray-200 pb-2">
-                <span className="text-sm text-gray-700">
+              <div key={comp.id} className="flex justify-between items-center border-b border-gray-200 pb-1.5">
+                <span className="text-xs text-gray-700">
                   {comp.name} ({comp.modules} {comp.modules === 1 ? 'pole' : 'pola'})
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-xs font-medium text-gray-900">
                   {comp.quantity} {comp.unit || 'szt.'}
                 </span>
               </div>
             ))}
           </div>
+        </div>
+        
+        {/* Wycena */}
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold text-gray-900">Wycena</h2>
+            <div className="text-xs text-gray-600">
+              Suma punktów: <span className="font-semibold text-gray-900">{totalPoints} pkt</span>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Cena za punkt */}
+            <div className="flex justify-between items-center gap-4">
+              <label className="text-xs text-gray-700 font-medium flex-shrink-0">Cena za punkt:</label>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <input
+                  type="number"
+                  value={pricePerPoint}
+                  onChange={(e) => setPricePerPoint(parseFloat(e.target.value) || 0)}
+                  className="w-24 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-600 whitespace-nowrap">zł netto</span>
+              </div>
+            </div>
+            
+            {/* Wartość punktów */}
+            <div className="flex justify-between items-center gap-4">
+              <label className="text-xs text-gray-700 font-medium flex-shrink-0">Wartość punktów:</label>
+              <span className="text-sm font-semibold text-green-600 flex-shrink-0">
+                {pointsValue.toFixed(2)} zł netto
+              </span>
+            </div>
+            
+            {/* Wartość przewodów */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center gap-4">
+                <label className="text-xs text-gray-700 font-medium flex-shrink-0">Wartość przewodów:</label>
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  <span className="text-sm font-semibold text-green-600">
+                    {effectiveWireValue.toFixed(2)} zł netto
+                  </span>
+                  {calculatedWireValue === 0 && (
+                    <input
+                      type="number"
+                      value={wireValue}
+                      onChange={(e) => setWireValue(parseFloat(e.target.value) || 0)}
+                      className="w-24 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ręcznie"
+                    />
+                  )}
+                </div>
+              </div>
+              
+              {/* Wire value breakdown by type */}
+              {Object.keys(wireTypeBreakdown).length > 0 && (
+                <div className="ml-0 mt-3 space-y-3 border-l-2 border-gray-200 pl-4">
+                  <div className="text-xs font-semibold text-gray-700 mb-2">Podział według typu przewodu:</div>
+                  {Object.entries(wireTypeBreakdown).map(([cableType, data]) => (
+                    <div key={cableType} className="space-y-2">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <span className="text-xs font-medium text-gray-700">
+                            {cableType}
+                          </span>
+                          {data.totalLength > 0 && (
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({data.totalLength.toFixed(0)} m)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center gap-4">
+                        <label className="text-xs text-gray-600 whitespace-nowrap flex-shrink-0">Cena za m:</label>
+                        <div className="flex items-center space-x-2 flex-shrink-0">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={data.pricePerMeter || ''}
+                            onChange={(e) => handleWireTypePriceChange(cableType, parseFloat(e.target.value) || 0)}
+                            className="w-24 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="0.00"
+                          />
+                          <span className="text-xs text-gray-600 whitespace-nowrap">zł/m</span>
+                          {data.value > 0 && (
+                            <span className="text-xs font-semibold text-green-600 ml-2 whitespace-nowrap">
+                              = {data.value.toFixed(2)} zł
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {calculatedWireValue > 0 && (
+                    <div className="mt-3 pt-2 border-t border-gray-200">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-xs font-semibold text-gray-700">Suma przewodów:</span>
+                        <span className="text-sm font-bold text-green-600">
+                          {calculatedWireValue.toFixed(2)} zł netto
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Koszt podłączenia */}
+            <div className="flex justify-between items-center gap-4">
+              <label className="text-xs text-gray-700 font-medium flex-shrink-0">
+                Koszt podłączenia ({totalPoints} zabezpieczeń):
+              </label>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <input
+                  type="number"
+                  value={connectionCost}
+                  onChange={(e) => setConnectionCost(parseFloat(e.target.value) || 0)}
+                  className="w-24 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-600 whitespace-nowrap">zł netto</span>
+              </div>
+            </div>
+            
+            {/* Custom Items */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <label className="text-xs font-medium text-gray-700 mb-2 block">
+                + Dodaj pozycję:
+              </label>
+              <div className="flex space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={newCustomItem.name}
+                  onChange={(e) => setNewCustomItem({ ...newCustomItem, name: e.target.value })}
+                  placeholder="Np. Domofon"
+                  className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 placeholder-gray-400"
+                />
+                <input
+                  type="number"
+                  value={newCustomItem.price}
+                  onChange={(e) => setNewCustomItem({ ...newCustomItem, price: e.target.value })}
+                  placeholder="Cena"
+                  className="w-32 px-2 py-1 text-xs border border-gray-300 rounded text-gray-900 placeholder-gray-400"
+                />
+                <button
+                  onClick={handleAddCustomItem}
+                  className="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Dodaj
+                </button>
+              </div>
+              
+              {customItems.map(item => (
+                <div key={item.id} className="flex justify-between items-center mb-1 gap-4">
+                  <span className="text-xs text-gray-700 flex-shrink-0">{item.name}</span>
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    <span className="text-xs text-gray-900">{item.price.toFixed(2)} zł netto</span>
+                    <button
+                      onClick={() => handleDeleteCustomItem(item.id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Totals */}
+            <div className="mt-4 pt-4 border-t-2 border-gray-300 space-y-3">
+              <div className="flex justify-between items-center gap-4">
+                <span className="text-sm font-semibold text-gray-900">Suma netto:</span>
+                <span className="text-base font-bold text-green-600 flex-shrink-0">{netTotal.toFixed(2)} zł</span>
+              </div>
+              
+              <div className="flex justify-between items-center gap-4">
+                <div className="flex items-center space-x-3 flex-shrink-0">
+                  <span className="text-xs text-gray-700 font-medium">VAT:</span>
+                  <label className="flex items-center space-x-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={vatRate === 8}
+                      onChange={() => setVatRate(8)}
+                      className="text-purple-600 cursor-pointer"
+                    />
+                    <span className="text-xs">8%</span>
+                  </label>
+                  <label className="flex items-center space-x-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={vatRate === 23}
+                      onChange={() => setVatRate(23)}
+                      className="text-purple-600 cursor-pointer"
+                    />
+                    <span className="text-xs">23%</span>
+                  </label>
+                </div>
+                <span className="text-sm font-semibold text-green-600 flex-shrink-0">
+                  {vatAmount.toFixed(2)} zł
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200 gap-4">
+                <span className="text-base font-semibold text-gray-900">Suma brutto:</span>
+                <span className="text-lg font-bold text-green-600 flex-shrink-0">{grossTotal.toFixed(2)} zł</span>
+              </div>
+            </div>
+          </div>
           
           {/* Akcje */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex flex-wrap gap-3">
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleSaveOffer}
-                className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center"
+                className="px-3 py-1.5 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 flex items-center"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
                 Zapisz Ofertę
               </button>
-              <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button className="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 flex items-center">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Zapisz jako szablon
+                Szablon
               </button>
-              <button className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button className="px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                Generuj PDF
+                PDF
               </button>
               <Link
                 href={`/offer/visualization?id=${offerId}`}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center"
+                className="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 flex items-center"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
                 </svg>
-                Wizualizacja Rozdzielnicy
+                Wizualizacja
               </Link>
-              <button className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button className="px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Wyślij Ofertę Mailem
+                Email
               </button>
             </div>
           </div>

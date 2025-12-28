@@ -14,7 +14,11 @@
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
     "pack": "npm run build && electron-builder --dir",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "ngrok": "node start-ngrok.js",
+    "ngrok:all": "node start-with-ngrok.js",
+    "ngrok:simple": "ngrok http 3000",
+    "ngrok:url": "node get-ngrok-url.js"
   },
   "keywords": [
     "electron",
@@ -73,5 +77,11 @@
     }
   }
 }
+
+
+
+
+
+
 
 

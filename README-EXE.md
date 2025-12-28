@@ -298,3 +298,15 @@ If you encounter issues:
 - v1.0.0 - Initial Electron setup with Next.js and Express backend
 
 
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import GlobalPopup from '@/components/GlobalPopup';
 import { SearchComponent } from '@/components/SearchComponent';
 import api from '@/lib/api';
+import { getButtonClass } from '@/lib/theme';
 
 interface Circuit {
   id: number;
@@ -41,14 +42,36 @@ interface RequiredComponent {
   description?: string; // Opis elementu wyświetlany w tooltipie
   price?: number; // Cena przybliżona w PLN
   image?: string; // Ścieżka do obrazu komponentu
+  category?: string; // Kategoria główna
+  subcategory?: string; // Podkategoria
+}
+
+interface ComponentCategory {
+  id: string;
+  name: string;
+  subcategories?: ComponentSubcategory[];
+  components?: string[]; // IDs of components directly in this category
+}
+
+interface ComponentSubcategory {
+  id: string;
+  name: string;
+  components: string[]; // IDs of components in this subcategory
 }
 
 const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
+  { id: 'bistable_relay', name: 'Przekaźnik bistabilny modułowy', fields: 2, description: 'Przekaźnik bistabilny modułowy - przekaźnik elektryczny do sterowania oświetleniem z wielu przycisków bez podtrzymania zasilania', price: 85, image: '/pictures/electricComponents/bistable_relay.jpg' },
   // Zabezpieczenia podstawowe
   { id: 'isolator', name: 'Rozłącznik izolacyjny modułowy', fields: 3, description: 'Rozłącznik izolacyjny modułowy 3-polowy - wyłącznik główny rozdzielnicy elektrycznej do bezpiecznego odłączenia zasilania', price: 180, image: '/pictures/electricComponents/isolator.jpg' },
   { id: 'pen_splitter', name: 'Złączka podziału przewodu PEN', fields: 2, description: 'Złączka podziału przewodu PEN na PE i N - element elektryczny do rozdzielenia przewodu ochronno-neutralnego w rozdzielnicy', price: 15, image: '/pictures/electricComponents/pen_splitter.jpg' },
-  { id: 'surge_protection', name: 'Ogranicznik przepięć modułowy', fields: 4, description: 'Ogranicznik przepięć modułowy SPD T1/T2/T3 - zabezpieczenie elektryczne przed przepięciami i wyładowaniami atmosferycznymi', price: 320, image: '/pictures/electricComponents/surge_protection.jpg' },
+  { id: 'surge_protection', name: 'Ogranicznik przepięć 4 + 0', fields: 4, description: 'Ogranicznik przepięć warystorowy Simtec ST30B+C/4 klasa B+C 30kA 275V | 85201010 Simet - zabezpieczenie elektryczne przed przepięciami i wyładowaniami atmosferycznymi', price: 320, image: '/pictures/electricComponents/surge_protection.jpg' },
+  { id: 'surge_protection_3plus1', name: 'Ogranicznik przepięć 3 + 1', fields: 4, description: 'Ogranicznik przepięć warystorowy 3 + 1 klasa B+C - zabezpieczenie elektryczne przed przepięciami i wyładowaniami atmosferycznymi w układzie 3 fazy + neutralna', price: 320, image: '/pictures/electricComponents/surge_protection.jpg' },
+  { id: 'surge_protection_3plus0', name: 'Ogranicznik przepięć 3 + 0', fields: 3, description: 'Ogranicznik przepięć warystorowy 3 + 0 klasa B+C - zabezpieczenie elektryczne przed przepięciami i wyładowaniami atmosferycznymi w układzie 3 fazy bez neutralnej', price: 280, image: '/pictures/electricComponents/surge_protection.jpg' },
   { id: 'distribution_block', name: 'Blok rozdzielczy modułowy', fields: 4, description: 'Blok rozdzielczy modułowy - element elektryczny do rozdziału obwodów w rozdzielnicy modułowej', price: 85, image: '/pictures/electricComponents/distribution_block.jpg' },
+  { id: 'branch_distribution_block', name: 'Blok rozdzielczy rozgałęźny "ZUBI"', fields: 4, description: 'Blok rozdzielczy rozgałęźny modułowy - element elektryczny do rozgałęziania i rozdziału obwodów w rozdzielnicy modułowej', price: 95, image: '/pictures/electricComponents/branch_distribution_block.jpg' },
+  { id: 'branch_distribution_block_simblock', name: 'Blok rozdzielczy odgałęźny  SIMBLOCK SCB 25-5X Al/Cu 80150', fields: 4, description: 'Blok rozdzielczy rozgałęźny modułowy - element elektryczny do rozgałęziania i rozdziału obwodów w rozdzielnicy modułowej', price: 76, image: '/pictures/electricComponents/branch_distribution_block.jpg' },
+
+ 
   { id: 'rcd_1f', name: 'Wyłącznik różnicowoprądowy jednofazowy', fields: 2, description: 'Wyłącznik różnicowoprądowy RCD jednofazowy 230V - zabezpieczenie przeciwporażeniowe modułowe', price: 145, image: '/pictures/electricComponents/rcd_1f.jpg' },
   { id: 'rcd_3f', name: 'Wyłącznik różnicowoprądowy trójfazowy', fields: 4, description: 'Wyłącznik różnicowoprądowy RCD trójfazowy 400V - zabezpieczenie przeciwporażeniowe modułowe', price: 280, image: '/pictures/electricComponents/rcd_3f.jpg' },
   
@@ -80,7 +103,7 @@ const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
   { id: 'contactor', name: 'Stycznik modułowy elektryczny', fields: 2, description: 'Stycznik modułowy elektryczny - przekaźnik elektromagnetyczny do sterowania obwodami elektrycznymi bojlera, podłogówki, rekuperacji, gniazd nocnych', price: 125, image: '/pictures/electricComponents/contactor.jpg' },
   { id: 'bistable_relay', name: 'Przekaźnik bistabilny modułowy', fields: 2, description: 'Przekaźnik bistabilny modułowy - przekaźnik elektryczny do sterowania oświetleniem z wielu przycisków bez podtrzymania zasilania', price: 85, image: '/pictures/electricComponents/bistable_relay.jpg' },
   { id: 'timer_relay', name: 'Przekaźnik czasowy modułowy', fields: 2, description: 'Przekaźnik czasowy modułowy - przekaźnik elektryczny z funkcją opóźnienia czasowego do automatycznego wyłączania oświetlenia i wentylacji', price: 95, image: '/pictures/electricComponents/timer_relay.jpg' },
-  { id: 'smart_module', name: 'Moduł automatyki budynkowej', fields: 2, description: 'Moduł automatyki budynkowej - sterownik elektryczny KNX, MODBUS, WiFi, ZigBee do systemu inteligentnego domu w rozdzielnicy', price: 350, image: '/pictures/electricComponents/smart_module.jpg' },
+  { id: 'smart_module', name: 'Moduł automatyki budynkowej', fields: 2, description: 'Moduł automatyki budynkowej - sterownik elektryczny KNX, MODBUS, WiFi, ZigBee do systemu inteligentnego domu w rozdzielnicy', price: 1660, image: '/pictures/electricComponents/smart_module.jpg' },
   
   // Pomiary i kontrola
   { id: 'energy_meter_1f', name: 'Licznik energii elektrycznej jednofazowy', fields: 4, description: 'Licznik energii elektrycznej jednofazowy MID - licznik modułowy do pomiaru energii elektrycznej dla podliczników, PV, pompy ciepła', price: 280, image: '/pictures/electricComponents/energy_meter_1f.jpg' },
@@ -95,7 +118,7 @@ const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
   // Zasilanie awaryjne i specjalne
   { id: 'power_supply_24v', name: 'Zasilacz modułowy 24V DC', fields: 2, description: 'Zasilacz modułowy 24V DC - zasilacz elektryczny do automatyki, przekaźników i systemów sterowania w rozdzielnicy', price: 95, image: '/pictures/electricComponents/power_supply_24v.jpg' },
   { id: 'power_supply_12v', name: 'Zasilacz modułowy 12V DC', fields: 2, description: 'Zasilacz modułowy 12V DC - zasilacz elektryczny do automatyki, przekaźników i systemów sterowania w rozdzielnicy', price: 85, image: '/pictures/electricComponents/power_supply_12v.jpg' },
-  { id: 'network_generator_switch', name: 'Przełącznik sieć-agregat UPS', fields: 4, description: 'Przełącznik sieć-agregat UPS modułowy - przełącznik elektryczny do automatycznego przełączania między zasilaniem sieciowym a agregatem lub UPS', price: 380, image: '/pictures/electricComponents/network_generator_switch.jpg' },
+  { id: 'network_generator_switch', name: 'Przełącznik sieć-agregat UPS', fields: 4, description: 'Przełącznik sieć-agregat UPS modułowy - przełącznik elektryczny do automatycznego przełączania między zasilaniem sieciowym a agregatem lub UPS', price: 80, image: '/pictures/electricComponents/network_generator_switch.jpg' },
   { id: 'fire_switch', name: 'Wyłącznik przeciwpożarowy modułowy', fields: 2, description: 'Wyłącznik przeciwpożarowy modułowy - wyłącznik elektryczny do szybkiego odłączenia zasilania w przypadku pożaru, wymagany przy instalacjach PV', price: 195, image: '/pictures/electricComponents/fire_switch.jpg' },
   
   // PV, EV i nowoczesne instalacje
@@ -106,6 +129,7 @@ const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
   
   // Organizacja i estetyka
   { id: 'n_pe_busbar', name: 'Listwy szyn N i PE', fields: 1, description: 'Listwy szyn N i PE modułowe - szyny elektryczne do organizacji przewodów neutralnych i ochronnych w rozdzielnicy', price: 35, image: '/pictures/electricComponents/n_pe_busbar.jpg' },
+  { id: 'gsu', name: 'Główna Szyna Uziemiająca (GSU)', fields: 1, description: 'Główna Szyna Uziemiająca GSU - szyna elektryczna do połączenia wszystkich przewodów ochronnych PE i przewodów uziemiających w rozdzielnicy elektrycznej', price: 45, image: '/pictures/electricComponents/pe_connector.jpg' },
   { id: 'comb_busbar', name: 'Szyny grzebieniowe modułowe', fields: 1, description: 'Szyny grzebieniowe modułowe - szyny elektryczne grzebieniowe jednofazowe i trójfazowe do rozdziału zasilania w rozdzielnicy', price: 25, image: '/pictures/electricComponents/comb_busbar.jpg' },
   { id: 'cable_duct', name: 'Kanały kablowe do rozdzielnicy', fields: 1, description: 'Kanały kablowe modułowe - kanały elektryczne do organizacji i prowadzenia przewodów w rozdzielnicy modułowej', price: 15, image: '/pictures/electricComponents/cable_duct.jpg' },
   { id: 'module_labels', name: 'Etykiety opisowe modułów elektrycznych', fields: 0, description: 'Etykiety opisowe modułów elektrycznych - oznaczenia i opisy modułów w rozdzielnicy do dokumentacji i identyfikacji obwodów', price: 25, image: '/pictures/electricComponents/module_labels.jpg' },
@@ -118,6 +142,7 @@ const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
   { id: 'comb_bridge_1f', name: 'Mostki grzebieniowe jednofazowe', fields: 1, description: 'Mostki grzebieniowe jednofazowe modułowe - mostki elektryczne do łączenia wyłączników nadprądowych jednofazowych', price: 18, image: '/pictures/electricComponents/comb_bridge_1f.jpg' },
   { id: 'comb_bridge_3f', name: 'Mostki grzebieniowe trójfazowe', fields: 1, description: 'Mostki grzebieniowe trójfazowe modułowe - mostki elektryczne do łączenia wyłączników nadprądowych trójfazowych', price: 28, image: '/pictures/electricComponents/comb_bridge_3f.jpg' },
   { id: 'supply_terminals', name: 'Zaciski przyłączeniowe zasilania', fields: 2, description: 'Zaciski przyłączeniowe zasilania modułowe - zaciski elektryczne do przyłączenia głównego zasilania do rozdzielnicy', price: 55, image: '/pictures/electricComponents/supply_terminals.jpg' },
+  { id: 'rod_connecting_busbar', name: 'Szyna łączeniowa sztyftowa', fields: 1, description: 'Szyna łączeniowa sztyftowa modułowa - szyna elektryczna sztyftowa do łączenia i rozdziału obwodów w rozdzielnicy modułowej', price: 42, image: '/pictures/electricComponents/rod_connecting_busbar.jpg' },
   
   // Ochrona i bezpieczeństwo - dodatkowe
   { id: 'emergency_switch', name: 'Wyłącznik awaryjny modułowy', fields: 2, description: 'Wyłącznik awaryjny modułowy - wyłącznik elektryczny awaryjny do szybkiego odłączenia zasilania w sytuacji awaryjnej', price: 125, image: '/pictures/electricComponents/emergency_switch.jpg' },
@@ -141,6 +166,169 @@ const REQUIRED_COMPONENTS: Omit<RequiredComponent, 'quantity'>[] = [
   { id: 'blank_module', name: 'Zaślepki modułowe pól', fields: 1, description: 'Zaślepki modułowe pól - zaślepki elektryczne do estetycznego zamykania wolnych miejsc w rozdzielnicy modułowej', price: 5, image: '/pictures/electricComponents/blank_module.jpg' },
   { id: 'circuit_description', name: 'Opis obwodów elektrycznych', fields: 0, description: 'Opis obwodów elektrycznych - etykiety i oznaczenia do dokumentacji obwodów w rozdzielnicy elektrycznej', price: 25, image: '/pictures/electricComponents/circuit_description.jpg' },
   { id: 'door_schematic', name: 'Drzwiczki rozdzielnicy z miejscem na schemat', fields: 0, description: 'Drzwiczki rozdzielnicy z miejscem na schemat - drzwiczki elektryczne z przezroczystą kieszenią na schemat instalacji', price: 85, image: '/pictures/electricComponents/door_schematic.jpg' },
+  
+  // Kable instalacyjne - najczęściej używane
+ { id: 'cable_ydypzo_5x4', name: 'Kabel YDYpżo 5x4', fields: 0, description: 'Kabel płaski YDYpżo 5x4 mm² - kabel instalacyjny do obwodów trójfazowych i urządzeń o większej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_ydyp_3x15', name: 'Kabel YDYp 3x1,5', fields: 0, description: 'Kabel płaski YDYp 3x1,5 mm² - kabel instalacyjny płaski do oświetlenia i obwodów małej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_ydyp_3x25', name: 'Kabel YDYp 3x2,5', fields: 0, description: 'Kabel płaski YDYp 3x2,5 mm² - kabel instalacyjny płaski do gniazd wtyczkowych i obwodów standardowych', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_yky_3x15', name: 'Kabel YKY 3x1,5', fields: 0, description: 'Kabel YKY 3x1,5 mm² - kabel instalacyjny okrągły w osłonie PVC do oświetlenia i obwodów małej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_yky_3x25', name: 'Kabel YKY 3x2,5', fields: 0, description: 'Kabel YKY 3x2,5 mm² - kabel instalacyjny okrągły w osłonie PVC do gniazd wtyczkowych i obwodów standardowych', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_yky_3x4', name: 'Kabel YKY 3x4', fields: 0, description: 'Kabel YKY 3x4 mm² - kabel instalacyjny okrągły w osłonie PVC do obwodów o większej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_yky_5x4', name: 'Kabel YKY 5x4', fields: 0, description: 'Kabel YKY 5x4 mm² - kabel instalacyjny okrągły w osłonie PVC do obwodów trójfazowych', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_yky_5x6', name: 'Kabel YKY 5x6', fields: 0, description: 'Kabel YKY 5x6 mm² - kabel instalacyjny okrągły w osłonie PVC do obwodów trójfazowych o dużej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_lgy_4', name: 'Kabel LGY 3x4 4 żółto-zielony (H07V-K) 450/750V', fields: 0, description: 'Przewód LgY to jednożyłowy przewód elektryczny, który charakteryzuje się elastyczną budową i jest powszechnie stosowany w instalacjach niskonapięciowych. Przewody LgY przeznaczone są do połączenia urządzeń i aparatów elektrycznych w systemach automatyki oraz instalacji w rozdzielnicach i tablicach elektrycznych.', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_lgy_3x4', name: 'Przewód LGY 4 niebieski (H07V-K) 450/750V', fields: 0, description: 'Przewód LgY to jednożyłowy przewód elektryczny, który charakteryzuje się elastyczną budową i jest powszechnie stosowany w instalacjach niskonapięciowych. Przewody LgY przeznaczone są do połączenia urządzeń i aparatów elektrycznych w systemach automatyki oraz instalacji w rozdzielnicach i tablicach elektrycznych.', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+
+  { id: 'cable_ykxs_3x15', name: 'Kabel YKXS 3x1,5', fields: 0, description: 'Kabel YKXS 3x1,5 mm² - kabel instalacyjny w osłonie z PVC do oświetlenia i obwodów małej mocy', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_ykxs_3x25', name: 'Kabel YKXS 3x2,5', fields: 0, description: 'Kabel YKXS 3x2,5 mm² - kabel instalacyjny w osłonie z PVC do gniazd wtyczkowych i obwodów standardowych', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  
+  // Przewody PEN (ochronno-neutralne)
+  { id: 'cable_pen_4x10_cu', name: 'Przewód PEN 4x10 mm² (miedź)', fields: 0, description: 'Przewód PEN 4x10 mm² miedziany - przewód ochronno-neutralny do przyłączenia głównego zasilania w instalacji elektrycznej', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+  { id: 'cable_pen_4x16_al', name: 'Przewód PEN 4x16 mm² (aluminium)', fields: 0, description: 'Przewód PEN 4x16 mm² aluminiowy - przewód ochronno-neutralny do przyłączenia głównego zasilania w instalacji elektrycznej', price: 0, image: '/pictures/electricComponents/cable_duct.jpg' },
+];
+
+// Component categories structure
+const COMPONENT_CATEGORIES: ComponentCategory[] = [
+  {
+    id: 'basic_protection',
+    name: 'Zabezpieczenia podstawowe',
+    components: ['isolator', 'pen_splitter', 'surge_protection', 'surge_protection_3plus1', 'surge_protection_3plus0', 'distribution_block', 'branch_distribution_block', 'branch_distribution_block_simblock', 'rcd_1f', 'rcd_3f']
+  },
+  {
+    id: 'overcurrent_protection',
+    name: 'Zabezpieczenia nadprądowe',
+    subcategories: [
+      {
+        id: 'mcb_b',
+        name: 'Wyłączniki MCB charakterystyki B',
+        components: ['mcb_b6', 'mcb_b10', 'mcb_b13', 'mcb_b16', 'mcb_b20', 'mcb_b25', 'mcb_b32', 'mcb_b40', 'mcb_b50', 'mcb_b63', 'mcb_b80', 'mcb_b100', 'mcb_b125']
+      },
+      {
+        id: 'mcb_c',
+        name: 'Wyłączniki MCB charakterystyki C',
+        components: ['mcb_c16']
+      },
+      {
+        id: 'rcbo',
+        name: 'Wyłączniki różnicowo-nadprądowe',
+        components: ['rcbo']
+      }
+    ]
+  },
+  {
+    id: 'surge_protection_detailed',
+    name: 'Zabezpieczenia przepięciowe',
+    subcategories: [
+      {
+        id: 'spd_types',
+        name: 'Ograniczniki przepięć SPD',
+        components: ['spd_t1', 'spd_t2', 'spd_t3', 'spd_dc', 'spd_data']
+      },
+      {
+        id: 'spd_basic',
+        name: 'Ograniczniki przepięć podstawowe',
+        components: ['surge_protection', 'surge_protection_3plus1', 'surge_protection_3plus0']
+      }
+    ]
+  },
+  {
+    id: 'control_automation',
+    name: 'Sterowanie i automatyka',
+    components: ['contactor', 'bistable_relay', 'timer_relay', 'smart_module']
+  },
+  {
+    id: 'measurement_control',
+    name: 'Pomiary i kontrola',
+    subcategories: [
+      {
+        id: 'meters',
+        name: 'Liczniki energii',
+        components: ['energy_meter_1f', 'energy_meter_3f']
+      },
+      {
+        id: 'indicators',
+        name: 'Wskaźniki i mierniki',
+        components: ['voltmeter', 'ammeter', 'power_meter', 'phase_indicator', 'phase_indicator_1f', 'spd_indicator']
+      }
+    ]
+  },
+  {
+    id: 'emergency_special',
+    name: 'Zasilanie awaryjne i specjalne',
+    components: ['power_supply_24v', 'power_supply_12v', 'network_generator_switch', 'fire_switch']
+  },
+  {
+    id: 'pv_ev',
+    name: 'PV, EV i nowoczesne instalacje',
+    components: ['pv_ac_protection', 'pv_dc_disconnect', 'ev_charger_protection', 'ev_energy_meter']
+  },
+  {
+    id: 'organization',
+    name: 'Organizacja i estetyka',
+    components: ['n_pe_busbar', 'gsu', 'comb_busbar', 'cable_duct', 'module_labels']
+  },
+  {
+    id: 'connection_elements',
+    name: 'Elementy łączeniowe i rozdział',
+    components: ['n_connector', 'pe_connector', 'phase_connector', 'distribution_busbar', 'comb_bridge_1f', 'comb_bridge_3f', 'supply_terminals', 'rod_connecting_busbar']
+  },
+  {
+    id: 'additional_protection',
+    name: 'Ochrona i bezpieczeństwo - dodatkowe',
+    components: ['emergency_switch', 'voltage_relay', 'overvoltage_relay']
+  },
+  {
+    id: 'additional_automation',
+    name: 'Automatyka i sterowanie - dodatkowe',
+    components: ['current_relay', 'io_module', 'blind_controller', 'heating_controller']
+  },
+  {
+    id: 'auxiliary_power',
+    name: 'Zasilanie pomocnicze - dodatkowe',
+    components: ['ups_module', 'priority_relay']
+  },
+  {
+    id: 'required',
+    name: 'Rzeczy obowiązkowe',
+    components: ['din_rail', 'n_pe_rail', 'rcd_separator', 'blank_module', 'circuit_description', 'door_schematic']
+  },
+  {
+    id: 'cables',
+    name: 'Kable instalacyjne',
+    subcategories: [
+      {
+        id: 'ydypzo',
+        name: 'Kable YDYpżo',
+        components: ['cable_ydypzo_5x4']
+      },
+      {
+        id: 'ydyp',
+        name: 'Kable YDYp',
+        components: ['cable_ydyp_3x15', 'cable_ydyp_3x25']
+      },
+      {
+        id: 'yky',
+        name: 'Kable YKY',
+        components: ['cable_yky_3x15', 'cable_yky_3x25', 'cable_yky_3x4', 'cable_yky_5x4', 'cable_yky_5x6']
+      },
+      {
+        id: 'lgy',
+        name: 'Kable LGY',
+        components: ['cable_lgy_3x4', 'cable_lgy_4']
+      },
+ 
+      {
+        id: 'ykxs',
+        name: 'Kable YKXS',
+        components: ['cable_ykxs_3x15', 'cable_ykxs_3x25']
+      },
+      {
+        id: 'pen',
+        name: 'Przewody PEN',
+        components: ['cable_pen_4x10_cu', 'cable_pen_4x16_al']
+      }
+    ]
+  }
 ];
 
 // Sort components alphabetically by name
@@ -172,6 +360,26 @@ const CIRCUIT_TEMPLATES: CircuitTemplate[] = [
   { description: 'Zasilanie tablica multimedialna', zone: 'Piętro', voltage: 230, cable: 'YDYpżo 3x2,5', power: 1, phase: 'L2', type: '1φ' },
   { description: 'Gniazdo 400V', zone: 'Parter', voltage: 400, cable: 'YDYpżo 5x4', power: 5, phase: '3Φ', type: '3φ' },
   { description: 'Rolety parter', zone: 'Parter', voltage: 230, cable: 'YDYpżo 3x1,5', power: 0.5, phase: 'L3', type: '1φ' },
+
+  // Przewody instalacyjne OMY, OMYp
+  { description: 'Oświetlenie LED', zone: 'Parter', voltage: 230, cable: 'OMY 2x0,5', power: 0.1, phase: 'L1', type: '1φ' },
+  { description: 'Oświetlenie LED', zone: 'Piętro', voltage: 230, cable: 'OMY 2x0,5', power: 0.1, phase: 'L2', type: '1φ' },
+  { description: 'Oświetlenie punktowe', zone: 'Parter', voltage: 230, cable: 'OMY 2x0,75', power: 0.2, phase: 'L1', type: '1φ' },
+  { description: 'Oświetlenie punktowe', zone: 'Piętro', voltage: 230, cable: 'OMY 2x0,75', power: 0.2, phase: 'L2', type: '1φ' },
+  { description: 'Włącznik światła', zone: 'Parter', voltage: 230, cable: 'OMY 2x1', power: 0.1, phase: 'L1', type: '1φ' },
+  { description: 'Włącznik światła', zone: 'Piętro', voltage: 230, cable: 'OMY 2x1', power: 0.1, phase: 'L2', type: '1φ' },
+  { description: 'Gniazdo słabe prądy', zone: 'Parter', voltage: 230, cable: 'OMY 3x1', power: 0.5, phase: 'L1', type: '1φ' },
+  { description: 'Gniazdo słabe prądy', zone: 'Piętro', voltage: 230, cable: 'OMY 3x1', power: 0.5, phase: 'L2', type: '1φ' },
+  { description: 'Zasilanie czujniki', zone: 'Parter', voltage: 230, cable: 'OMY 2x0,5', power: 0.05, phase: 'L3', type: '1φ' },
+  { description: 'Zasilanie czujniki', zone: 'Piętro', voltage: 230, cable: 'OMY 2x0,5', power: 0.05, phase: 'L1', type: '1φ' },
+  { description: 'Instalacja alarmowa', zone: 'Parter', voltage: 230, cable: 'OMY 4x0,75', power: 0.3, phase: 'L1', type: '1φ' },
+  { description: 'Instalacja alarmowa', zone: 'Piętro', voltage: 230, cable: 'OMY 4x0,75', power: 0.3, phase: 'L2', type: '1φ' },
+  { description: 'Sterowanie roletami', zone: 'Parter', voltage: 230, cable: 'OMYp 3x0,75', power: 0.2, phase: 'L3', type: '1φ' },
+  { description: 'Sterowanie roletami', zone: 'Piętro', voltage: 230, cable: 'OMYp 3x0,75', power: 0.2, phase: 'L1', type: '1φ' },
+  { description: 'Gniazdo słabe prądy 1,5mm²', zone: 'Parter', voltage: 230, cable: 'OMY 3x1,5', power: 1, phase: 'L1', type: '1φ' },
+  { description: 'Gniazdo słabe prądy 1,5mm²', zone: 'Piętro', voltage: 230, cable: 'OMY 3x1,5', power: 1, phase: 'L2', type: '1φ' },
+  { description: 'Instalacja multimedialna', zone: 'Parter', voltage: 230, cable: 'OMYp 4x0,75', power: 0.2, phase: 'L2', type: '1φ' },
+  { description: 'Instalacja multimedialna', zone: 'Piętro', voltage: 230, cable: 'OMYp 4x0,75', power: 0.2, phase: 'L3', type: '1φ' },
 ];
 
 // Component Item with Image Upload
@@ -197,18 +405,52 @@ function ComponentItem({
       : `${basePath}.jpg`;
   };
 
+  // Helper function to get saved image from localStorage
+  const getSavedImagePath = (componentId: string): string | undefined => {
+    if (typeof window === 'undefined') return undefined;
+    try {
+      const saved = localStorage.getItem(`component_image_${componentId}`);
+      return saved || undefined;
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      return undefined;
+    }
+  };
+
+  // Helper function to save image path to localStorage
+  const saveImagePath = (componentId: string, imagePath: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(`component_image_${componentId}`, imagePath);
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
+
   // Helper function to generate Google search URL
   const getGoogleSearchUrl = (name: string, description?: string): string => {
-    const searchQuery = description 
-      ? `${name} ${description}`
-      : name;
+    const searchQuery = description || name;
     const encodedQuery = encodeURIComponent(searchQuery);
     return `https://www.google.com/search?q=${encodedQuery}`;
   };
 
-  const [image, setImage] = useState(getImagePath(componentTemplate?.image));
+  // Initialize image state: check localStorage first, then fallback to template
+  const [image, setImage] = useState(() => {
+    const savedImage = getSavedImagePath(component.id);
+    return savedImage || getImagePath(componentTemplate?.image);
+  });
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync image with localStorage when component changes
+  useEffect(() => {
+    const savedImage = getSavedImagePath(component.id);
+    if (savedImage) {
+      setImage(savedImage);
+    } else {
+      setImage(getImagePath(componentTemplate?.image));
+    }
+  }, [component.id, componentTemplate?.image]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -235,6 +477,8 @@ function ComponentItem({
       const response = await api.upload.componentImage(component.id, file);
       if (response.success) {
         setImage(response.filePath);
+        // Save image path to localStorage to persist across page refreshes
+        saveImagePath(component.id, response.filePath);
       }
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -253,7 +497,7 @@ function ComponentItem({
   const totalPrice = price * component.quantity;
 
   return (
-    <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 bg-gray-50">
+    <div className="flex items-stretch gap-1 md:gap-2 border border-gray-200 rounded-lg p-1.5 md:p-2 bg-gray-50">
       {/* Component Image - Left Side */}
       <div className="flex-shrink-0">
         <input
@@ -264,7 +508,7 @@ function ComponentItem({
           className="hidden"
         />
         <div 
-          className={`w-16 h-16 relative bg-white rounded border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-400 transition-colors ${isUploading ? 'opacity-50' : ''}`}
+          className={`w-12 md:w-16 h-full relative bg-white rounded border border-gray-200 overflow-hidden cursor-pointer active:border-blue-400 transition-colors touch-manipulation ${isUploading ? 'opacity-50' : ''}`}
           onClick={handleImageClick}
           title="Kliknij, aby zmienić obraz"
         >
@@ -272,8 +516,10 @@ function ComponentItem({
             <Image
               src={image}
               alt={component.name}
-              fill
-              className="object-contain p-1"
+              
+              className="object-contain p-1 w-full h-full"
+              width={200}
+              height={200}
               onError={(e) => {
                 // Try .jpeg if .jpg fails
                 const img = e.target as HTMLImageElement;
@@ -307,15 +553,15 @@ function ComponentItem({
           href={getGoogleSearchUrl(component.name, description)}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
-          title={`Szukaj w Google: ${component.name} ${description}`}
+          className="text-xs md:text-sm font-medium text-blue-600 active:text-blue-800 active:underline touch-manipulation"
+          title={`Szukaj w Google: ${description || component.name}`}
           onClick={(e) => e.stopPropagation()}
         >
           {component.name}
         </a>
 
         {/* Fields and Price Info */}
-        <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+        <div className="flex items-center gap-1 md:gap-2 text-xs text-gray-500 flex-wrap">
           {component.fields > 0 && (
             <span>({component.fields} {component.fields === 1 ? 'pole' : 'pola'})</span>
           )}
@@ -324,8 +570,8 @@ function ComponentItem({
           )}
           {description && (
             <div className="relative group flex-shrink-0">
-              <span className="text-blue-600 cursor-help text-xs font-bold hover:text-blue-800">?</span>
-              <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              <span className="text-blue-600 cursor-help text-xs font-bold active:text-blue-800">?</span>
+              <div className="absolute left-0 bottom-full mb-2 w-48 md:w-64 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none z-50">
                 {description}
               </div>
             </div>
@@ -333,18 +579,18 @@ function ComponentItem({
         </div>
 
         {/* Quantity Controls */}
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-1 md:gap-2 mt-1">
           <button
             onClick={() => {
               const newQuantity = Math.max(0, component.quantity - 1);
               onQuantityChange(component.id, newQuantity);
             }}
-            className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-200 bg-white text-black font-bold min-w-[28px]"
+            className="px-2 md:px-2 py-1.5 md:py-1 text-xs md:text-sm border border-gray-300 rounded active:bg-gray-200 bg-white text-black font-bold min-w-[32px] md:min-w-[28px] touch-manipulation"
             title="Zmniejsz ilość"
           >
             −
           </button>
-          <span className="text-sm font-medium text-gray-900 min-w-[24px] text-center">
+          <span className="text-xs md:text-sm font-medium text-gray-900 min-w-[24px] text-center">
             {component.quantity}
           </span>
           <button
@@ -352,7 +598,7 @@ function ComponentItem({
               const newQuantity = Math.min(10, component.quantity + 1);
               onQuantityChange(component.id, newQuantity);
             }}
-            className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-200 bg-white text-black font-bold min-w-[28px]"
+            className="px-2 md:px-2 py-1.5 md:py-1 text-xs md:text-sm border border-gray-300 rounded active:bg-gray-200 bg-white text-black font-bold min-w-[32px] md:min-w-[28px] touch-manipulation"
             title="Zwiększ ilość"
           >
             +
@@ -666,6 +912,9 @@ export default function CalculationPage() {
   const [sortColumn, setSortColumn] = useState<keyof Circuit | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeFilter, setActiveFilter] = useState<keyof Circuit | null>(null);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [rightSidebarVisible, setRightSidebarVisible] = useState(true);
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [filters, setFilters] = useState<Partial<Record<keyof Circuit, any>>>({
     circuitNumber: null,
     description: '',
@@ -678,6 +927,33 @@ export default function CalculationPage() {
     phase: '',
     type: '',
   });
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['basic_protection', 'overcurrent_protection', 'cables', 'organization'])); // Default expanded categories
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set(['mcb_b', 'ydypzo', 'yky'])); // Default expanded subcategories
+  
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSubcategory = (subcategoryId: string) => {
+    setExpandedSubcategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(subcategoryId)) {
+        newSet.delete(subcategoryId);
+      } else {
+        newSet.add(subcategoryId);
+      }
+      return newSet;
+    });
+  };
+
   const [requiredComponents, setRequiredComponents] = useState<RequiredComponent[]>(
     SORTED_REQUIRED_COMPONENTS.map(comp => ({ ...comp, quantity: 0 }))
   );
@@ -1094,7 +1370,7 @@ export default function CalculationPage() {
     
     // Add table header - exactly 11 columns matching the table
     const headerRow = [
-      'Nr obwodu',
+      'Nr',
       'Opis obwodu',
       'Ilość gniazd/włączników',
       'Strefa',
@@ -1162,7 +1438,7 @@ export default function CalculationPage() {
         const separator = firstLine.includes(';') ? ';' : ',';
         
         // First line should be header - expect exactly 9 columns
-        const expectedColumns = ['Nr obwodu', 'Opis obwodu', 'Ilość gniazd/włączników', 'Strefa', 'Napięcie', 'Przewód', 'Długość [m]', 'Moc [kW]', 'Typ bezpiecznika', 'Faza', 'Typ'];
+        const expectedColumns = ['Nr', 'Opis obwodu', 'Ilość gniazd/włączników', 'Strefa', 'Napięcie', 'Przewód', 'Długość [m]', 'Moc [kW]', 'Typ bezpiecznika', 'Faza', 'Typ'];
         const headerColumns = firstLine.split(separator).map(col => col.trim());
         
         if (headerColumns.length !== 11) {
@@ -1348,10 +1624,34 @@ export default function CalculationPage() {
       >
         <p className="text-gray-700">Zapomniałeś dodać tytuł obwodu. Proszę uzupełnić pole &quot;Opis obwodu&quot; przed dodaniem wiersza.</p>
       </GlobalPopup>
-      <div className="flex">
+      <div className="flex flex-col md:flex-row relative">
+        {/* Toggle Button - Always visible at top */}
+        <button
+          onClick={() => setSidebarVisible(!sidebarVisible)}
+          className={`fixed md:absolute top-4 z-50 bg-white border border-gray-300 rounded-r-lg p-2 md:p-2 shadow-lg hover:bg-gray-50 active:bg-gray-100 transition-all duration-300 touch-manipulation ${
+            sidebarVisible ? 'left-[176px] md:left-[176px]' : 'left-0'
+          }`}
+          title={sidebarVisible ? 'Ukryj szablony' : 'Pokaż szablony'}
+        >
+          <svg 
+            className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${sidebarVisible ? '' : 'rotate-180'}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
         {/* Left Sidebar - Templates */}
-        <div className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 sticky top-0 overflow-y-auto max-h-screen">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 sticky top-0 bg-white pb-2">Szablony obwodów</h2>
+        <div 
+          className={`bg-white border-r border-gray-200 min-h-screen p-2 md:p-4 sticky top-0 overflow-y-auto max-h-screen transition-all duration-300 ease-in-out ${
+            sidebarVisible 
+              ? 'w-44 md:w-44 translate-x-0 opacity-100 z-40' 
+              : '-translate-x-full md:-translate-x-full w-0 opacity-0 pointer-events-none'
+          }`}
+        >
+          <h2 className="text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-4 sticky top-0 bg-white pb-2">Szablony obwodów</h2>
           <div className="space-y-1">
             {[...CIRCUIT_TEMPLATES].sort((a, b) => a.description.localeCompare(b.description, 'pl')).map((template, index) => {
               const isUsed = isTemplateUsed(template.description);
@@ -1359,10 +1659,10 @@ export default function CalculationPage() {
                 <button
                   key={index}
                   onClick={() => handleTemplateClick(template)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`w-full text-left px-2 md:px-3 py-2 md:py-2 rounded-lg text-xs md:text-sm transition-colors touch-manipulation ${
                     isUsed
-                      ? 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 cursor-pointer line-through'
-                      : 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer'
+                      ? 'bg-gray-100 text-gray-400 active:bg-red-100 active:text-red-600 cursor-pointer line-through'
+                      : 'bg-gray-50 text-gray-700 active:bg-blue-50 active:text-blue-700 cursor-pointer'
                   }`}
                   title={isUsed ? 'Kliknij aby usunąć obwód i przywrócić szablon' : 'Kliknij aby dodać'}
                 >
@@ -1373,41 +1673,41 @@ export default function CalculationPage() {
           </div>
         </div>
 
-        {/* Middle Content - Table (50% width) */}
-        <div className="w-2/3 px-4 py-4 border-r border-gray-200 relative">
+        {/* Middle Content - Table */}
+        <div className={`px-2 md:px-4 py-2 md:py-4 border-r border-gray-200 relative transition-all duration-300 flex-1 min-w-0 ${rightSidebarVisible ? 'md:w-2/3' : 'w-full'}`}>
           {/* Header - Sticky */}
           <div className="sticky top-0 bg-gray-50 z-40 pb-1 pt-2 border-b border-gray-200">
-            <Link href="/" className="text-gray-600 hover:text-gray-900 flex items-center mb-1 text-sm">
-              <span className="text-lg mr-1">←</span>
+            <Link href="/" className="text-gray-600 hover:text-gray-900 active:text-gray-900 flex items-center mb-1 text-xs md:text-sm touch-manipulation">
+              <span className="text-base md:text-lg mr-1">←</span>
               <span>Powrót</span>
             </Link>
-            <div className="flex justify-between items-center">
-              <h1 className="text-xl font-bold text-gray-900">Kalkulacja Obwodów</h1>
-              <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-0">
+              <h1 className="text-base md:text-xl font-bold text-gray-900">Kalkulacja Obwodów</h1>
+              <div className="flex flex-wrap gap-1 md:gap-2 w-full md:w-auto">
                 <button
                   onClick={resetAllFiltersAndSorting}
-                  className="px-4 py-1.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-medium text-sm"
+                  className={`${getButtonClass('neutral')} text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 touch-manipulation`}
                   title="Resetuj wszystkie filtry i sortowanie"
                 >
-                  Reset filters
+                  Reset
                 </button>
                 <button
                   onClick={exportToCSV}
-                  className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+                  className={`${getButtonClass('neutral')} text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 touch-manipulation`}
                   title="Eksportuj do CSV"
                 >
-                  Export to CSV
+                  Export
                 </button>
                 <button
                   onClick={handleImportCSV}
-                  className="px-4 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm"
+                  className={`${getButtonClass('neutral')} text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 touch-manipulation`}
                   title="Importuj z CSV"
                 >
-                  Import from CSV
+                  Import
                 </button>
                 <button
                   onClick={handleAdd}
-                  className="px-4 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm"
+                  className={`${getButtonClass('neutral')} text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 touch-manipulation`}
                 >
                   + Dodaj
                 </button>
@@ -1417,22 +1717,22 @@ export default function CalculationPage() {
 
           {/* Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table ref={tableRef} className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto -mx-2 md:mx-0">
+            <table ref={tableRef} className="min-w-full divide-y divide-gray-200 text-xs md:text-sm">
               <thead className="bg-gray-50">
                 <tr>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '20px' }}
+                    className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '25px', minWidth: '25px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded"
                         onClick={() => handleSort('circuitNumber')}
                       >
-                        Nr obwodu
+                        Nr
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'circuitNumber' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1465,7 +1765,7 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative"
+                    className="px-2 md:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative min-w-[120px]"
                   >
                     <div className="flex items-center justify-between">
                       <span 
@@ -1507,17 +1807,18 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative"
-                    style={{ width: '120px' }}
+                    className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative"
+                    style={{ width: '26px', minWidth: '26px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded truncate"
                         onClick={() => handleSort('socketSwitchCount')}
+                        title="Ilość gniazd"
                       >
-                        Ilość gniazd/włączników
+                       Gniazda
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-2">
                         {sortColumn === 'socketSwitchCount' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1550,17 +1851,17 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '50px' }}
+                    className="px-2 md:px-4 py-2 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '50px', minWidth: '50px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('zone')}
                       >
                         Strefa
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'zone' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1596,17 +1897,17 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '50px' }}
+                    className="px-2 md:px-4 py-2 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '50px', minWidth: '50px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('voltage')}
                       >
                         Napięcie
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'voltage' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1642,16 +1943,16 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative"
+                    className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative min-w-[100px]"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('cable')}
                       >
                         Przewód
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'cable' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1687,12 +1988,12 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '70px' }}
+                    className="px-2 md:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '70px', minWidth: '70px' }}
                   >
                     <div className="flex items-center justify-between">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded flex-1 touch-manipulation"
                         onClick={() => handleSort('length')}
                       >
                         Długość [m]
@@ -1730,17 +2031,17 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '50px' }}
+                    className="px-2 md:px-4 py-2 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '50px', minWidth: '50px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('power')}
                       >
                         Moc [W]
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'power' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1776,25 +2077,25 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '80px' }}
+                    className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '80px', minWidth: '80px' }}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="flex-1">Typ bezpiecznika</span>
+                    <div className="flex items-center justify-center">
+                      <span>Typ bezpiecznika</span>
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
-                    style={{ width: '50px' }}
+                    className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 select-none relative" 
+                    style={{ width: '50px', minWidth: '50px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('phase')}
                       >
                         Faza
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'phase' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1831,17 +2132,17 @@ export default function CalculationPage() {
                     )}
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none relative" 
-                    style={{ width: '50px' }}
+                    className="px-2 md:px-4 py-2 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider select-none relative" 
+                    style={{ width: '50px', minWidth: '50px' }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center relative">
                       <span 
-                        className="cursor-pointer hover:bg-gray-100 px-1 py-1 rounded flex-1"
+                        className="cursor-pointer active:bg-gray-100 px-1 py-1 rounded touch-manipulation"
                         onClick={() => handleSort('type')}
                       >
                         Typ
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 absolute right-0">
                         {sortColumn === 'type' && (
                           <span className="text-blue-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
@@ -1875,7 +2176,7 @@ export default function CalculationPage() {
                       </div>
                     )}
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 md:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ width: '60px', minWidth: '60px' }}>
                     Akcje
                   </th>
                 </tr>
@@ -1905,6 +2206,9 @@ export default function CalculationPage() {
                         }
                       }}
                       onClick={(e) => {
+                        // Set selected row
+                        setSelectedRowId(circuit.id);
+                        
                         // Single click on another row - validate and save current editing, then start editing new row
                         if (editingId !== null && editingId !== circuit.id && !isEditing) {
                           if (editingCircuit) {
@@ -1918,9 +2222,9 @@ export default function CalculationPage() {
                           handleEdit(circuit);
                         }
                       }}
-                      className={`bg-white ${isEditing ? 'cursor-default' : 'cursor-pointer'}`}
+                      className={`${selectedRowId === circuit.id ? 'bg-gray-100' : 'bg-white'} ${isEditing ? 'cursor-default' : 'cursor-pointer'} transition-colors`}
                     >
-                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200" style={{ width: '20px' }}>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm font-medium text-gray-900 border-r border-gray-200 text-center" style={{ width: '25px', minWidth: '25px' }}>
                         {isEditing ? (
                           <input
                             type="number"
@@ -1938,7 +2242,7 @@ export default function CalculationPage() {
                           circuit.circuitNumber
                         )}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-900 border-r border-gray-200">
+                      <td className="px-2 md:px-4 py-2 text-xs md:text-sm text-gray-900 border-r border-gray-200">
                         {isEditing ? (
                           <div className="relative">
                             <input
@@ -2004,7 +2308,7 @@ export default function CalculationPage() {
                           circuit.description
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '120px' }}>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '26px', minWidth: '26px' }}>
                         {isEditing ? (
                           <input
                             type="number"
@@ -2023,7 +2327,7 @@ export default function CalculationPage() {
                           circuit.socketSwitchCount ?? 0
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '50px' }}>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '50px' }}>
                         {isEditing ? (
                           <select
                             value={editingCircuit?.zone || circuit.zone}
@@ -2043,7 +2347,7 @@ export default function CalculationPage() {
                           circuit.zone
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '50px' }}>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '50px' }}>
                         {isEditing ? (
                           <input
                             type="number"
@@ -2061,7 +2365,7 @@ export default function CalculationPage() {
                           circuit.voltage
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center">
                         {isEditing ? (
                           <select
                             value={editingCircuit?.cable || circuit.cable}
@@ -2082,7 +2386,7 @@ export default function CalculationPage() {
                           circuit.cable
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '70px' }}>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '70px' }}>
                         {isEditing ? (
                           <input
                             type="number"
@@ -2101,7 +2405,7 @@ export default function CalculationPage() {
                           circuit.length || 0
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '50px' }}>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '30px', minWidth: '30px' }}>
                         {isEditing ? (
                           <input
                             type="number"
@@ -2120,7 +2424,7 @@ export default function CalculationPage() {
                           circuit.power
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '80px' }}>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '80px', minWidth: '80px' }}>
                         {isEditing ? (
                           <select
                             value={editingCircuit?.fuseType || circuit.fuseType || '10A'}
@@ -2141,7 +2445,7 @@ export default function CalculationPage() {
                           circuit.fuseType || '10A'
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200" style={{ width: '50px' }}>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center" style={{ width: '50px' }}>
                         {isEditing ? (
                           <select
                             value={editingCircuit?.phase || circuit.phase}
@@ -2175,10 +2479,10 @@ export default function CalculationPage() {
                           circuit.phase
                         )}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900" style={{ width: '50px' }}>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-900 text-center" style={{ width: '50px', minWidth: '50px' }}>
                         {circuit.type}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium">
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-xs md:text-sm font-medium text-center">
                         {isEditing ? (
                           <div className="flex space-x-2 items-center">
                             <button
@@ -2190,7 +2494,7 @@ export default function CalculationPage() {
                                   handleCancel();
                                 }
                               }}
-                              className="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-100 transition-colors"
+                              className="text-gray-600 active:text-gray-900 p-1.5 md:p-1 rounded active:bg-gray-100 transition-colors touch-manipulation"
                               title="Anuluj"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2200,18 +2504,10 @@ export default function CalculationPage() {
                           </div>
                         ) : (
                           <div className="flex space-x-2 items-center">
-                            <button
-                              onClick={() => handleEdit(circuit)}
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
-                              title="Edytuj"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
+                        
                             <button
                               onClick={() => handleDelete(circuit.id)}
-                              className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                              className="text-gray-600 active:text-gray-900 p-1.5 md:p-1 rounded active:bg-red-50 transition-colors touch-manipulation"
                               title="Usuń"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2227,10 +2523,10 @@ export default function CalculationPage() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={10} className="px-4 py-4 bg-gray-50 border-t border-gray-200">
+                  <td colSpan={10} className="px-2 md:px-4 py-3 md:py-4 bg-gray-50 border-t border-gray-200">
                     <button
                       onClick={handleAdd}
-                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center justify-center space-x-2"
+                      className={`w-full ${getButtonClass('neutral')} flex items-center justify-center space-x-2 text-sm md:text-base py-2 md:py-2 touch-manipulation`}
                     >
                       <span>+</span>
                       <span>Dodaj obwód</span>
@@ -2244,11 +2540,36 @@ export default function CalculationPage() {
         </div>
 
         {/* Right Sidebar - Summary */}
-        <div className="w-1/4 bg-white p-4 overflow-y-auto max-h-screen sticky top-0">
+        <div className={`relative transition-all duration-300 ${rightSidebarVisible ? 'flex-1 w-full md:w-auto' : 'w-0'}`}>
+          {/* Toggle Button - Always visible at top */}
+          <button
+            onClick={() => setRightSidebarVisible(!rightSidebarVisible)}
+            className={`fixed md:absolute top-4 z-50 bg-white border border-gray-300 rounded-l-lg p-2 shadow-lg hover:bg-gray-50 active:bg-gray-100 transition-all duration-300 touch-manipulation ${
+              rightSidebarVisible ? 'right-[calc(100%-1rem)] md:right-[calc(100%-1rem)]' : 'right-0'
+            }`}
+            title={rightSidebarVisible ? 'Ukryj podsumowanie' : 'Pokaż podsumowanie'}
+          >
+            <svg 
+              className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${rightSidebarVisible ? '' : 'rotate-180'}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <div 
+            className={`bg-white p-2 md:p-4 overflow-y-auto max-h-screen sticky top-0 transition-all duration-300 ease-in-out ${
+              rightSidebarVisible 
+                ? 'translate-x-0 opacity-100 z-40' 
+                : 'translate-x-full md:translate-x-full opacity-0 pointer-events-none'
+            }`}
+          >
           {/* Wymagane Komponenty */}
-          <div className="mb-6">
-            <div className="bg-blue-50 px-4 py-3 border-b border-blue-200 mb-4 rounded-t-lg">
-              <div className="flex items-center gap-3">
+          <div className="mb-4 md:mb-6">
+            <div className="bg-blue-50 px-2 md:px-4 py-2 md:py-3 border-b border-blue-200 mb-2 md:mb-4 rounded-t-lg">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-3">
                 <div className="flex-1">
                   <SearchComponent
                     value={componentSearchQuery}
@@ -2256,36 +2577,167 @@ export default function CalculationPage() {
                     placeholder="Szukaj po nazwie lub opisie..."
                   />
                 </div>
-                <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">Wymagane Komponenty</h2>
+                <h2 className="text-base md:text-lg font-bold text-gray-900 whitespace-nowrap">Wymagane Komponenty</h2>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
-              {requiredComponents
-                .filter((component) => {
+            <div className="h-[60vh] md:h-[75vh] overflow-y-auto">
+              {(() => {
+                // Helper function to check if component matches search
+                const matchesSearch = (componentId: string): boolean => {
                   if (!componentSearchQuery.trim()) return true;
                   const query = componentSearchQuery.toLowerCase();
-                  const componentTemplate = REQUIRED_COMPONENTS.find(c => c.id === component.id);
-                  const nameMatch = component.name.toLowerCase().includes(query);
-                  const descriptionMatch = componentTemplate?.description?.toLowerCase().includes(query) || false;
+                  const componentTemplate = REQUIRED_COMPONENTS.find(c => c.id === componentId);
+                  const component = requiredComponents.find(c => c.id === componentId);
+                  if (!componentTemplate && !component) return false;
+                  const nameMatch = (component?.name || componentTemplate?.name || '').toLowerCase().includes(query);
+                  const descriptionMatch = (componentTemplate?.description || '').toLowerCase().includes(query);
                   return nameMatch || descriptionMatch;
-                })
-                .map((component) => {
-                  const componentTemplate = REQUIRED_COMPONENTS.find(c => c.id === component.id);
-                  return (
-                    <ComponentItem
-                      key={component.id}
-                      component={component}
-                      componentTemplate={componentTemplate}
-                      onQuantityChange={(id, quantity) => {
-                        setRequiredComponents(prev =>
-                          prev.map(comp =>
-                            comp.id === id ? { ...comp, quantity } : comp
-                          )
-                        );
-                      }}
-                    />
-                  );
-                })}
+                };
+
+                // Helper function to check if category/subcategory should be shown
+                const shouldShowCategory = (category: ComponentCategory): boolean => {
+                  if (!componentSearchQuery.trim()) return true;
+                  // Check if any component in this category matches
+                  const allComponentIds: string[] = [];
+                  if (category.components) allComponentIds.push(...category.components);
+                  if (category.subcategories) {
+                    category.subcategories.forEach(sub => {
+                      allComponentIds.push(...sub.components);
+                    });
+                  }
+                  return allComponentIds.some(id => matchesSearch(id));
+                };
+
+                const shouldShowSubcategory = (subcategory: ComponentSubcategory): boolean => {
+                  if (!componentSearchQuery.trim()) return true;
+                  return subcategory.components.some(id => matchesSearch(id));
+                };
+
+                return COMPONENT_CATEGORIES
+                  .filter(category => shouldShowCategory(category))
+                  .map((category) => {
+                    const isExpanded = expandedCategories.has(category.id);
+                    const hasSubcategories = category.subcategories && category.subcategories.length > 0;
+                    const hasDirectComponents = category.components && category.components.length > 0;
+
+                    return (
+                      <div key={category.id} className="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                        {/* Category Header */}
+                        <button
+                          onClick={() => toggleCategory(category.id)}
+                          className="w-full px-2 md:px-3 py-2 bg-gray-100 active:bg-gray-200 flex items-center justify-between text-left transition-colors touch-manipulation"
+                        >
+                          <span className="font-semibold text-xs md:text-sm text-gray-900">{category.name}</span>
+                          <svg
+                            className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+
+                        {/* Category Content */}
+                        {isExpanded && (
+                          <div className="bg-white">
+                            {/* Direct components in category */}
+                            {hasDirectComponents && (
+                              <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {category.components!
+                                  .filter(componentId => {
+                                    const component = requiredComponents.find(c => c.id === componentId);
+                                    return component && matchesSearch(componentId);
+                                  })
+                                  .map((componentId) => {
+                                    const component = requiredComponents.find(c => c.id === componentId);
+                                    const componentTemplate = REQUIRED_COMPONENTS.find(c => c.id === componentId);
+                                    if (!component) return null;
+                                    return (
+                                      <div key={componentId} className="self-start w-full">
+                                        <ComponentItem
+                                          component={component}
+                                          componentTemplate={componentTemplate}
+                                          onQuantityChange={(id, quantity) => {
+                                            setRequiredComponents(prev =>
+                                              prev.map(comp =>
+                                                comp.id === id ? { ...comp, quantity } : comp
+                                              )
+                                            );
+                                          }}
+                                        />
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            )}
+
+                            {/* Subcategories */}
+                            {hasSubcategories && (
+                              <div className="space-y-1">
+                                {category.subcategories!
+                                  .filter(subcategory => shouldShowSubcategory(subcategory))
+                                  .map((subcategory) => {
+                                    const isSubExpanded = expandedSubcategories.has(subcategory.id);
+                                    return (
+                                      <div key={subcategory.id} className="border-t border-gray-100">
+                                        {/* Subcategory Header */}
+                                        <button
+                                          onClick={() => toggleSubcategory(subcategory.id)}
+                                          className="w-full px-2 md:px-4 py-2 bg-gray-50 active:bg-gray-100 flex items-center justify-between text-left transition-colors touch-manipulation"
+                                        >
+                                          <span className="font-medium text-xs text-gray-700">{subcategory.name}</span>
+                                          <svg
+                                            className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isSubExpanded ? 'rotate-90' : ''}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                          </svg>
+                                        </button>
+
+                                        {/* Subcategory Components */}
+                                        {isSubExpanded && (
+                                          <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            {subcategory.components
+                                              .filter(componentId => {
+                                                const component = requiredComponents.find(c => c.id === componentId);
+                                                return component && matchesSearch(componentId);
+                                              })
+                                              .map((componentId) => {
+                                                const component = requiredComponents.find(c => c.id === componentId);
+                                                const componentTemplate = REQUIRED_COMPONENTS.find(c => c.id === componentId);
+                                                if (!component) return null;
+                                                return (
+                                                  <div key={componentId} className="self-start w-full">
+                                                    <ComponentItem
+                                                      component={component}
+                                                      componentTemplate={componentTemplate}
+                                                      onQuantityChange={(id, quantity) => {
+                                                        setRequiredComponents(prev =>
+                                                          prev.map(comp =>
+                                                            comp.id === id ? { ...comp, quantity } : comp
+                                                          )
+                                                        );
+                                                      }}
+                                                    />
+                                                  </div>
+                                                );
+                                              })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
+              })()}
             </div>
             {/* Total components cost */}
             {(() => {
@@ -2302,7 +2754,6 @@ export default function CalculationPage() {
                       <span className="text-sm font-semibold text-gray-700">Suma komponentów:</span>
                       <span className="text-lg font-bold text-green-600">{totalComponentsCost.toFixed(2)} zł</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">Ceny przybliżone (netto)</div>
                   </div>
                 );
               }
@@ -2310,18 +2761,18 @@ export default function CalculationPage() {
             })()}
           </div>
 
-          <div className="bg-orange-50 px-4 py-3 border-b border-orange-200 mb-4 rounded-t-lg">
-            <h2 className="text-lg font-bold text-gray-900">Podsumowanie i Obliczenia</h2>
+          <div className="bg-orange-50 px-2 md:px-4 py-2 md:py-3 border-b border-orange-200 mb-2 md:mb-4 rounded-t-lg">
+            <h2 className="text-base md:text-lg font-bold text-gray-900">Podsumowanie i Obliczenia</h2>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-2 md:space-y-4">
             {/* Podsumowanie fazowe */}
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-gray-800 mb-2">Podsumowanie fazowe</h3>
               
               <div 
-                className={`flex justify-between items-center py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs ${
-                  selectedPhase === 'L1' ? 'bg-blue-100 rounded px-2' : 'hover:bg-gray-50 rounded px-2'
+                className={`flex justify-between items-center py-2 md:py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs touch-manipulation ${
+                  selectedPhase === 'L1' ? 'bg-blue-100 rounded px-2' : 'active:bg-gray-50 rounded px-2'
                 }`}
                 onClick={() => {
                   setSelectedPhase(selectedPhase === 'L1' ? null : 'L1');
@@ -2338,8 +2789,8 @@ export default function CalculationPage() {
               </div>
               
               <div 
-                className={`flex justify-between items-center py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs ${
-                  selectedPhase === 'L2' ? 'bg-blue-100 rounded px-2' : 'hover:bg-gray-50 rounded px-2'
+                className={`flex justify-between items-center py-2 md:py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs touch-manipulation ${
+                  selectedPhase === 'L2' ? 'bg-blue-100 rounded px-2' : 'active:bg-gray-50 rounded px-2'
                 }`}
                 onClick={() => {
                   setSelectedPhase(selectedPhase === 'L2' ? null : 'L2');
@@ -2356,8 +2807,8 @@ export default function CalculationPage() {
               </div>
               
               <div 
-                className={`flex justify-between items-center py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs ${
-                  selectedPhase === 'L3' ? 'bg-blue-100 rounded px-2' : 'hover:bg-gray-50 rounded px-2'
+                className={`flex justify-between items-center py-2 md:py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs touch-manipulation ${
+                  selectedPhase === 'L3' ? 'bg-blue-100 rounded px-2' : 'active:bg-gray-50 rounded px-2'
                 }`}
                 onClick={() => {
                   setSelectedPhase(selectedPhase === 'L3' ? null : 'L3');
@@ -2374,8 +2825,8 @@ export default function CalculationPage() {
               </div>
               
               <div 
-                className={`flex justify-between items-center py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs ${
-                  highlightTotalPower ? 'bg-green-100 rounded px-2' : 'hover:bg-gray-50 rounded px-2'
+                className={`flex justify-between items-center py-2 md:py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs touch-manipulation ${
+                  highlightTotalPower ? 'bg-green-100 rounded px-2' : 'active:bg-gray-50 rounded px-2'
                 }`}
                 onClick={() => {
                   setHighlightTotalPower(!highlightTotalPower);
@@ -2392,8 +2843,8 @@ export default function CalculationPage() {
               </div>
               
               <div 
-                className={`flex justify-between items-center py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs ${
-                  highlightMaxPower ? 'bg-yellow-100 rounded px-2' : 'hover:bg-gray-50 rounded px-2'
+                className={`flex justify-between items-center py-2 md:py-1.5 border-b border-gray-200 cursor-pointer transition-colors text-xs touch-manipulation ${
+                  highlightMaxPower ? 'bg-purple-100 rounded px-2' : 'active:bg-gray-50 rounded px-2'
                 }`}
                 onClick={() => {
                   setHighlightMaxPower(!highlightMaxPower);
@@ -2401,10 +2852,10 @@ export default function CalculationPage() {
                   setSelectedPhase(null);
                 }}
               >
-                <span className={`font-medium ${highlightMaxPower ? 'text-yellow-700' : 'text-gray-700'}`}>
+                <span className={`font-medium ${highlightMaxPower ? 'text-purple-700' : 'text-gray-700'}`}>
                   Maksymalna faza [kW]:
                 </span>
-                <span className={`font-bold ${highlightMaxPower ? 'text-yellow-900' : 'text-gray-900'}`}>
+                <span className={`font-bold ${highlightMaxPower ? 'text-purple-900' : 'text-gray-900'}`}>
                   {summary.maxPhasePower.toFixed(1)}
                 </span>
               </div>
@@ -2485,9 +2936,9 @@ export default function CalculationPage() {
             </div>
 
             {/* Generuj Ofertę Button */}
-            <div className="pt-6 border-t border-gray-200 mt-6">
+            <div className="pt-4 md:pt-6 border-t border-gray-200 mt-4 md:mt-6">
               {submitError && (
-                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-xs">
+                <div className="mb-3 md:mb-4 p-2 md:p-3 bg-red-100 border border-red-400 text-red-700 rounded text-xs">
                   {submitError}
                 </div>
               )}
@@ -2648,7 +3099,7 @@ export default function CalculationPage() {
                   }
                 }}
                 disabled={isSubmitting}
-                className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-4 rounded-lg font-semibold text-lg flex items-center justify-center transition-colors"
+                className={`w-full ${getButtonClass('neutral', 'disabled:bg-gray-400 disabled:cursor-not-allowed px-4 md:px-6 py-3 md:py-4 text-sm md:text-lg font-semibold')} flex items-center justify-center touch-manipulation`}
               >
                 {isSubmitting ? (
                   <>
@@ -2670,6 +3121,7 @@ export default function CalculationPage() {
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

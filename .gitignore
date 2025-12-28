@@ -38,4 +38,20 @@ yarn-error.log*
 *.rpm
 *.AppImage
 
+# ngrok
+ngrok-url.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

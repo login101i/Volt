@@ -50,7 +50,7 @@ export default function Home() {
         </div>
 
         {/* Action Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {/* Card 1: Nowa Oferta */}
           <Link href="/offer/new" className="group">
             <div className="bg-green-500 hover:bg-green-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
@@ -96,6 +96,24 @@ export default function Home() {
               <div className="mb-4 text-7xl">🔢</div>
               <h2 className="text-2xl font-bold mb-3">Kalkulacja</h2>
               <p className="text-orange-50 text-sm">Obliczenia obwodów elektrycznych</p>
+            </div>
+          </Link>
+
+          {/* Card 6: EleQuicz */}
+          <Link href="/elequicz" className="group">
+            <div className="bg-indigo-500 hover:bg-indigo-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
+              <div className="mb-4 text-7xl">❓</div>
+              <h2 className="text-2xl font-bold mb-3">EleQuicz</h2>
+              <p className="text-indigo-50 text-sm">Pytania i odpowiedzi o instalacje elektryczne</p>
+            </div>
+          </Link>
+
+          {/* Card 7: Dobór Kabli */}
+          <Link href="/dobor-kabli" className="group">
+            <div className="bg-teal-500 hover:bg-teal-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
+              <div className="mb-4 text-7xl">🔌</div>
+              <h2 className="text-2xl font-bold mb-3">Dobór Kabli</h2>
+              <p className="text-teal-50 text-sm">Precyzyjny wybór przewodów - przekrój, obciążalność i więcej</p>
             </div>
           </Link>
         </div>

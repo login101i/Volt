@@ -1,12 +1,36 @@
 // API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Detect if we're running on ngrok and get the backend URL accordingly
+function getApiBaseUrl(): string {
+  // Check if NEXT_PUBLIC_API_URL is explicitly set
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // In browser, check if we're on ngrok
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // If accessed via ngrok, use relative URLs (Next.js will proxy)
+    if (hostname.includes('.ngrok.io') || hostname.includes('.ngrok-free.app')) {
+      // Use relative URL - Next.js API route will proxy to backend
+      return '';
+    }
+  }
+  
+  // Default to localhost
+  return 'http://localhost:5000';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const api = {
   baseURL: API_BASE_URL,
   
   // Helper function to make API calls
   async fetch(endpoint: string, options?: RequestInit) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // If API_BASE_URL is empty (ngrok mode), use Next.js API proxy route
+    const url = API_BASE_URL 
+      ? `${API_BASE_URL}${endpoint}`
+      : `/api/proxy${endpoint}`;
     
     try {
       const response = await fetch(url, {
@@ -62,8 +86,11 @@ export const api = {
       // Also append componentId as form field (multer should parse it)
       formData.append('componentId', componentId);
 
-      // Pass componentId as query parameter as backup
-      const url = `${API_BASE_URL}/api/upload/component-image?componentId=${encodeURIComponent(componentId)}`;
+      // Use proxy route if API_BASE_URL is empty (ngrok mode), otherwise direct URL
+      const endpoint = '/api/upload/component-image';
+      const url = API_BASE_URL 
+        ? `${API_BASE_URL}${endpoint}?componentId=${encodeURIComponent(componentId)}`
+        : `/api/proxy${endpoint}?componentId=${encodeURIComponent(componentId)}`;
       
       try {
         const response = await fetch(url, {
