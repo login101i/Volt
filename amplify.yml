@@ -8,12 +8,13 @@ frontend:
         - npm ci --cache .npm --prefer-offline
     build:
       commands:
-        # Build Next.js frontend (output będzie w frontend/dist dzięki distDir w next.config.ts)
-        # Używamy bezpośrednio next build zamiast npm run build aby uniknąć cross-env (niepotrzebny w Linux)
+        # Build Next.js frontend
+        # AWS Amplify automatycznie wykryje Next.js i użyje odpowiedniej konfiguracji
         - NODE_OPTIONS=--max-old-space-size=4096 npm run build
   artifacts:
-    # Output directory: dist (zgodnie z distDir w next.config.ts)
-    baseDirectory: frontend/dist
+    # AWS Amplify automatycznie wykryje Next.js i użyje odpowiedniej struktury
+    # Dla Next.js bez output: 'export', Amplify używa .next folder
+    baseDirectory: frontend
     files:
       - '**/*'
   cache:

@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Dla AWS Amplify: zmieniamy distDir na 'dist' zamiast domyślnego '.next'
-  // To pozwala na działanie API routes jako serverless functions
-  distDir: 'dist',
+  // AWS Amplify automatycznie wykrywa Next.js i używa odpowiedniej konfiguracji
+  // Nie używamy distDir: 'dist' bo Amplify potrzebuje domyślnej struktury .next
   // Disable image optimization
   images: {
     unoptimized: true,
