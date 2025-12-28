@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -29,18 +29,10 @@ function OfferSummaryPageContent() {
   const [newCustomItem, setNewCustomItem] = useState({ name: '', price: '' });
   const [wireTypePrices, setWireTypePrices] = useState<Record<string, number>>({});
   
-  useEffect(() => {
-    if (offerId) {
-      fetchOffer();
-    } else {
-      setError('Brak ID oferty');
-      setLoading(false);
-    }
-  }, [offerId]);
-  
-  const fetchOffer = async () => {
+  const fetchOffer = useCallback(async () => {
+    if (!offerId) return;
     try {
-      const response = await api.offers.getById(offerId!);
+      const response = await api.offers.getById(offerId);
       if (response.success) {
         const offerData = response.data;
         setOffer(offerData);
@@ -56,7 +48,16 @@ function OfferSummaryPageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [offerId]);
+  
+  useEffect(() => {
+    if (offerId) {
+      fetchOffer();
+    } else {
+      setError('Brak ID oferty');
+      setLoading(false);
+    }
+  }, [offerId, fetchOffer]);
   
   const handleAddCustomItem = () => {
     if (newCustomItem.name.trim() && newCustomItem.price) {

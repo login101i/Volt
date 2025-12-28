@@ -9,7 +9,8 @@ frontend:
     build:
       commands:
         # Build Next.js frontend (output będzie w frontend/dist dzięki distDir w next.config.ts)
-        - npm run build
+        # Używamy bezpośrednio next build zamiast npm run build aby uniknąć cross-env (niepotrzebny w Linux)
+        - NODE_OPTIONS=--max-old-space-size=4096 npm run build
   artifacts:
     # Output directory: dist (zgodnie z distDir w next.config.ts)
     baseDirectory: frontend/dist

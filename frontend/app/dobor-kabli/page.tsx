@@ -1263,11 +1263,11 @@ export default function DoborKabliPage() {
                         <strong>PN-HD 60364-5-52</strong> to podstawowe i wiążące źródło wiedzy przy doborze przewodów i kabli.
                       </p>
                       <p className="text-gray-700 text-sm mb-2">
-                        Norma nie narzuca „sztywnych przekrojów do gniazdek", operuje tabelami obciążalności prądowej i uwzględnia warunki ułożenia oraz współczynniki korekcyjne.
+                        Norma nie narzuca &ldquo;sztywnych przekrojów do gniazdek&rdquo;, operuje tabelami obciążalności prądowej i uwzględnia warunki ułożenia oraz współczynniki korekcyjne.
                       </p>
                       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mt-2">
                         <p className="text-gray-800 font-semibold">👉 Wniosek dla aplikacji:</p>
-                        <p className="text-gray-700 italic">Logika ≠ „gniazdo → 2,5 mm²", tylko algorytm oparty o normę.</p>
+                        <p className="text-gray-700 italic">Logika ≠ &ldquo;gniazdo → 2,5 mm²&rdquo;, tylko algorytm oparty o normę.</p>
                       </div>
                     </div>
 
@@ -1287,7 +1287,7 @@ export default function DoborKabliPage() {
                         <li>Selektywność zabezpieczeń</li>
                       </ul>
                       <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2">
-                        <p className="text-gray-800 font-semibold">👉 Przekrój = max(z wymagań), a nie „najbliższy z tabelki"</p>
+                        <p className="text-gray-800 font-semibold">👉 Przekrój = max(z wymagań), a nie &ldquo;najbliższy z tabelki&rdquo;</p>
                       </div>
                     </div>
 
@@ -1333,7 +1333,7 @@ export default function DoborKabliPage() {
 
                     {/* Sekcja 5 */}
                     <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">5. Zabezpieczenie ≠ tylko „żeby nie wyskakiwało"</h4>
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">5. Zabezpieczenie ≠ tylko &ldquo;żeby nie wyskakiwało&rdquo;</h4>
                       <p className="text-gray-800 mb-2">
                         Wyłącznik nadprądowy <strong>chroni kabel, nie urządzenie</strong>.
                       </p>

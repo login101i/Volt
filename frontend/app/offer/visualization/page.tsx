@@ -74,12 +74,12 @@ function DistributionBoardVisualizationContent() {
     })
   );
 
-  const calculateBoardDimensions = (size: number) => {
+  const calculateBoardDimensions = useCallback((size: number) => {
     // Calculate rows and modules per row (always 12 modules per row)
     const rows = Math.ceil(size / 12);
     setBoardRows(rows);
     setModulesPerRow(12);
-  };
+  }, []);
 
   // Map component names/IDs to BoardComponent format (returns single component with quantity)
   const mapComponentToBoardComponent = (name: string, fields: number, quantity: number): BoardComponent | null => {
@@ -323,11 +323,29 @@ function DistributionBoardVisualizationContent() {
     setBoardLayout(layout);
   }, [offer, boardRows, modulesPerRow]);
 
+  const fetchOffer = useCallback(async () => {
+    if (!offerId) return;
+    try {
+      const response = await api.offers.getById(offerId);
+      if (response.success) {
+        setOffer(response.data);
+        if (response.data.components?.distributionBoardSize) {
+          setBoardSize(response.data.components.distributionBoardSize);
+          calculateBoardDimensions(response.data.components.distributionBoardSize);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading offer:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [offerId, calculateBoardDimensions]);
+
   useEffect(() => {
     if (offerId) {
       fetchOffer();
     }
-  }, [offerId]);
+  }, [offerId, fetchOffer]);
 
   useEffect(() => {
     if (offer) {
@@ -340,7 +358,7 @@ function DistributionBoardVisualizationContent() {
       calculateBoardDimensions(boardSize);
       // initializeBoard will be called automatically when boardRows/modulesPerRow change
     }
-  }, [boardSize]);
+  }, [boardSize, offer, calculateBoardDimensions]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -357,23 +375,6 @@ function DistributionBoardVisualizationContent() {
       };
     }
   }, [isDropdownOpen]);
-
-  const fetchOffer = async () => {
-    try {
-      const response = await api.offers.getById(offerId!);
-      if (response.success) {
-        setOffer(response.data);
-        if (response.data.components?.distributionBoardSize) {
-          setBoardSize(response.data.components.distributionBoardSize);
-          calculateBoardDimensions(response.data.components.distributionBoardSize);
-        }
-      }
-    } catch (err) {
-      console.error('Error loading offer:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSaveOffer = async () => {
     if (!offerId || !offer) {
