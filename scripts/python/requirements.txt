@@ -1,0 +1,11 @@
+# PostgreSQL CRUD Operations - Data Engineer Roadmap Week 2
+# Wymagane biblioteki Python
+
+# PostgreSQL adapter dla Python
+psycopg2-binary>=2.9.9
+
+# Ładowanie zmiennych środowiskowych z pliku .env
+python-dotenv>=1.0.0
+
+# AWS SDK dla Python - Data Lake S3 Operations - Week 3
+boto3>=1.34.0

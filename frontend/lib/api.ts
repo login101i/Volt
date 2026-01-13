@@ -81,32 +81,39 @@ export const api = {
   // Upload API
   upload: {
     componentImage: async (componentId: string, file: File) => {
-      const formData = new FormData();
-      formData.append('image', file);
-      // Also append componentId as form field (multer should parse it)
-      formData.append('componentId', componentId);
-
-      // Use proxy route if API_BASE_URL is empty (ngrok mode), otherwise direct URL
-      const endpoint = '/api/upload/component-image';
-      const url = API_BASE_URL 
-        ? `${API_BASE_URL}${endpoint}?componentId=${encodeURIComponent(componentId)}`
-        : `/api/proxy${endpoint}?componentId=${encodeURIComponent(componentId)}`;
-      
       try {
-        const response = await fetch(url, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.error || 'Unknown error'}`);
+        // Step 1: Get signed URL from S3
+        const signedUrlResponse = await fetch(`/api/media?fileType=${encodeURIComponent(file.type)}`);
+        
+        if (!signedUrlResponse.ok) {
+          const errorData = await signedUrlResponse.json().catch(() => ({}));
+          throw new Error(`Failed to get upload URL: ${signedUrlResponse.status} ${signedUrlResponse.statusText} - ${errorData.error || 'Unknown error'}`);
         }
 
-        return response.json();
+        const { uploadUrl, key, url } = await signedUrlResponse.json();
+
+        // Step 2: Upload file directly to S3 using signed URL
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Failed to upload to S3: ${uploadResponse.status} ${uploadResponse.statusText}`);
+        }
+
+        // Step 3: Return the S3 URL from the API response
+        return {
+          success: true,
+          filePath: url, // Full S3 URL for accessing the uploaded file
+          key: key,
+        };
       } catch (error) {
         if (error instanceof TypeError && error.message.includes('fetch')) {
-          throw new Error(`Failed to connect to server at ${url}. Make sure the server is running.`);
+          throw new Error(`Failed to upload image. Make sure the server is running.`);
         }
         throw error;
       }

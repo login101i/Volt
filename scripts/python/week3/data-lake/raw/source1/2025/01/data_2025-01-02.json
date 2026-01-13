@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "user_id": "user_003",
+      "name": "Piotr Wiśniewski",
+      "email": "piotr.wisniewski@example.com",
+      "registration_date": "2025-01-02",
+      "country": "Poland",
+      "status": "inactive"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "order_002",
+      "user_id": "user_002",
+      "order_date": "2025-01-02",
+      "total_amount": 75.0,
+      "currency": "PLN",
+      "status": "completed",
+      "items": [
+        {
+          "product_id": "prod_003",
+          "quantity": 1,
+          "price": 75.0
+        }
+      ]
+    }
+  ],
+  "source": "source1",
+  "date": "2025-01-02"
+}
