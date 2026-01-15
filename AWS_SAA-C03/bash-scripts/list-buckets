@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+echo "== list newest buckets"
+
+aws s3api list-buckets \
+  --query "Buckets | sort_by(@, &CreationDate) | reverse(@)[:5].Name" \
+  --output table
+  
+  echo "..."

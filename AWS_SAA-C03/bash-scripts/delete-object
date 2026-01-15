@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+echo "== delete-objects"
+
+set -e
+
+if [ -z "$1" ]; then
+    echo "There needs to be a bucket name eg. ./delete-object my-bucket-name"
+    exit 1
+fi
+
+BUCKET_NAME=$1
+
+# Tworzymy tymczasowy plik JSON w bezpiecznej lokalizacji
+DELETE_FILE=$(mktemp delete_objects_XXXX.json)
+
+# Pobierz wszystkie klucze obiektów
+KEYS=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --query "Contents[].Key" --output text)
+
+if [ -z "$KEYS" ]; then
+    echo "No objects found in bucket $BUCKET_NAME. Nothing to delete."
+    exit 0
+fi
+
+# Tworzymy JSON do usunięcia
+echo '{"Objects": [' > "$DELETE_FILE"
+
+FIRST=true
+for KEY in $KEYS; do
+    if [ "$FIRST" = true ]; then
+        FIRST=false
+    else
+        echo "," >> "$DELETE_FILE"
+    fi
+    echo "{\"Key\": \"$KEY\"}" >> "$DELETE_FILE"
+done
+
+echo ']}' >> "$DELETE_FILE"
+
+# Usuń obiekty
+aws s3api delete-objects --bucket "$BUCKET_NAME" --delete "file://$DELETE_FILE"
+
+echo "== deleted objects from $BUCKET_NAME =="
+
+# Usuń tymczasowy plik
+rm "$DELETE_FILE"
