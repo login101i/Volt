@@ -1,4 +1,4 @@
-const electricalComponents = require('../data/electricalComponents');
+import electricalComponents from '../data/electricalComponents.js';
 
 // Calculate required components based on offer data
 function calculateRequiredComponents(offerData) {
@@ -220,7 +220,7 @@ function calculatePricing(offerData, componentData, customItems = []) {
   };
 }
 
-module.exports = {
+export {
   calculateRequiredComponents,
   calculatePricing,
   electricalComponents,

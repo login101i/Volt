@@ -1,6 +1,10 @@
-const fs = require('fs').promises;
-const path = require('path');
-const { calculateRequiredComponents, calculatePricing } = require('../utils/offerCalculator');
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { calculateRequiredComponents, calculatePricing } from '../utils/offerCalculator.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Ensure data directory exists
 const dataDir = path.join(__dirname, '../data');
@@ -203,7 +207,7 @@ const deleteOffer = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createOffer,
   getOffers,
   getOfferById,

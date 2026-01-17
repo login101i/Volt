@@ -16,6 +16,7 @@ const InterviewPractice = () => {
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<Record<string, string>>({});
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState<Record<string, number>>({});
   const [showQuizResult, setShowQuizResult] = useState<Record<string, boolean>>({});
+  const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set(['week4', 'week5']));
 
   const renderEnglishQuestions = () => (
     <div className="space-y-6 w-full">
@@ -534,27 +535,84 @@ const InterviewPractice = () => {
 
   const renderRoadmap = () => (
     <div className="w-full space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-4">Data Engineer Roadmap</h2>
-        <p className="text-gray-300">16-tygodniowy plan nauki Data Engineering</p>
-      </div>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-4">Data Engineer Roadmap</h2>
+          <p className="text-gray-300">16-tygodniowy plan nauki Data Engineering</p>
+          <p className="text-gray-400 text-sm mt-2">Tygodnie 4-12: 14-dniowy program Python + S3</p>
+
+        {/* Quick Navigation */}
+        <div className="mt-6 bg-gray-800 rounded-lg p-4 border border-gray-600">
+          <h3 className="text-lg font-semibold text-white mb-3">Szybka nawigacja do tygodnia:</h3>
+          <p className="text-gray-400 text-xs mb-3">Tygodnie 4-12: 14-dniowy program Python + S3 z aplikacją Volt</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+            {roadmapData.map((week) => (
+              <button
+                key={week.id}
+                onClick={() => {
+                  // Expand the week
+                  setExpandedWeeks(prev => new Set([...prev, week.id]));
+                  // Scroll to the week after a short delay
+                  setTimeout(() => {
+                    const element = document.getElementById(week.id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }}
+                className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                  week.isBreak
+                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {week.week.split(' ')[1]}
+              </button>
+            ))}
+          </div>
+        </div>
 
       {/* Roadmap Weeks */}
       <div className="space-y-6">
-        {roadmapData.map((week) => (
-          <div key={week.id} className="bg-gray-800 rounded-xl border border-gray-600 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">{week.week}: {week.title}</h3>
-                <p className="text-gray-300 mb-2">{week.description}</p>
-                <p className="text-sm text-gray-400">
-                  {new Date(week.startDate).toLocaleDateString('pl-PL')} - {new Date(week.endDate).toLocaleDateString('pl-PL')}
-                </p>
+        {roadmapData.map((week) => {
+          const isExpanded = expandedWeeks.has(week.id);
+
+          return (
+            <div key={week.id} id={week.id} className="bg-gray-800 rounded-xl border border-gray-600 overflow-hidden">
+              {/* Clickable Header */}
+              <div
+                className="flex items-start justify-between p-6 cursor-pointer hover:bg-gray-700 transition-colors border-b border-gray-600"
+                onClick={() => {
+                  const newExpandedWeeks = new Set(expandedWeeks);
+                  if (isExpanded) {
+                    newExpandedWeeks.delete(week.id);
+                  } else {
+                    newExpandedWeeks.add(week.id);
+                  }
+                  setExpandedWeeks(newExpandedWeeks);
+                }}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-bold text-white">{week.week}: {week.title}</h3>
+                    <span className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
+                      ▼
+                    </span>
+                  </div>
+                  <p className="text-gray-300 mt-2">{week.description}</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    {new Date(week.startDate).toLocaleDateString('pl-PL')} - {new Date(week.endDate).toLocaleDateString('pl-PL')}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {week.isBreak && (
+                    <span className="px-3 py-1 bg-yellow-600 text-white rounded text-sm">Przerwa</span>
+                  )}
+                </div>
               </div>
-              {week.isBreak && (
-                <span className="px-3 py-1 bg-yellow-600 text-white rounded text-sm">Przerwa</span>
-              )}
-            </div>
+
+              {/* Collapsible Content */}
+              <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="px-6 pb-6">
 
             <div className="mb-4">
               <h4 className="text-sm font-semibold text-gray-400 mb-3">Zadania:</h4>
@@ -595,6 +653,36 @@ const InterviewPractice = () => {
                 <p className="text-sm text-gray-300">
                   <span className="font-semibold">Output:</span> {week.output}
                 </p>
+              </div>
+            )}
+
+            {/* Detailed Description */}
+            {week.detailedDescription && (
+              <div className="mt-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
+                <h4 className="text-lg font-semibold text-white mb-3">Szczegółowy opis tygodnia</h4>
+                <div className="text-sm space-y-2">
+                  {formatDescription(week.detailedDescription)}
+                </div>
+              </div>
+            )}
+
+            {/* Exercises */}
+            {week.exercises && week.exercises.length > 0 && (
+              <div className="mt-6 p-4 bg-blue-900/20 rounded-lg border border-blue-600">
+                <h4 className="text-lg font-semibold text-white mb-3">Ćwiczenia praktyczne</h4>
+                <div className="space-y-4">
+                  {week.exercises.map((exercise, idx) => (
+                    <div key={idx} className="bg-gray-800 rounded p-4 border border-gray-600">
+                      <h5 className="text-md font-semibold text-white mb-2">{exercise.title}</h5>
+                      <p className="text-gray-300 text-sm mb-3">{exercise.description}</p>
+                      {exercise.code && (
+                        <div className="bg-gray-900 p-3 rounded text-xs font-mono text-gray-300 overflow-x-auto">
+                          <pre>{exercise.code}</pre>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -696,8 +784,11 @@ const InterviewPractice = () => {
                 </div>
               );
             })()}
-          </div>
-        ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Concepts Section */}
@@ -722,6 +813,7 @@ const InterviewPractice = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 
@@ -920,7 +1012,7 @@ const InterviewPractice = () => {
 
           {/* Content based on active tab */}
           <div className="mt-8">
-            {/* {activeTab === 'english' && renderEnglishQuestions()} */}
+            {activeTab === 'english' && renderEnglishQuestions()}
             {activeTab === 'polish' && renderPolishQuestions()}
             {activeTab === 'roadmap' && renderRoadmap()}
             {activeTab === 'dataEngineer' && renderDataEngineerQuestions()}

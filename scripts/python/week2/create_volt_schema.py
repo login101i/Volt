@@ -89,6 +89,8 @@ def create_schema(conn):
             description TEXT,
             price DECIMAL(10,2),
             image VARCHAR(500),
+            category VARCHAR(100),
+            subcategory VARCHAR(100),
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
         );

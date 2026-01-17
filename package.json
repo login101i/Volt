@@ -75,13 +75,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Volt"
     }
+  },
+  "dependencies": {
+    "pg": "^8.17.0"
   }
 }
-
-
-
-
-
-
-
-

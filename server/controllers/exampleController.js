@@ -24,7 +24,7 @@ const createExample = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getExample,
   createExample
 };

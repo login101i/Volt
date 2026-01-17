@@ -31,6 +31,12 @@ export interface RoadmapItem {
     description?: string; // Szczegółowy opis zadania w języku polskim
   }[];
   output: string;
+  detailedDescription?: string; // Szczegółowy opis z markdown
+  exercises?: {
+    title: string;
+    description: string;
+    code?: string;
+  }[];
   quiz?: Quiz; // Mini quiz dla tygodnia
 }
 
@@ -2016,40 +2022,143 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week4',
     week: 'Tydzień 4',
-    title: 'Python ETL (bez Airflow)',
-    description: 'Cel: czysty, testowalny ETL',
+    title: 'Python + AWS S3 (boto3) - podstawy z Volt',
+    description: 'Cel: opanować boto3 i podstawowe operacje S3 używając danych z aplikacji Volt',
     startDate: '2025-01-27',
-    endDate: '2025-02-02',
+    endDate: '2025-01-30',
     isBreak: false,
     tasks: [
-      { id: 'python-requests', text: 'Python: requests', category: 'python' },
-      { id: 'python-retry', text: 'retry', category: 'python' },
-      { id: 'python-pagination', text: 'pagination', category: 'python' },
-      { id: 'python-auth', text: 'auth', category: 'python' },
-      { id: 'python-rate-limits', text: 'rate limits', category: 'python' },
-      { id: 'etl-api-s3', text: 'ETL: API → S3', category: 'python' },
-      { id: 'etl-logs', text: 'logi', category: 'python' },
-      { id: 'etl-errors', text: 'obsługa błędów', category: 'python' },
+      { id: 'boto3-install', text: 'Instalacja boto3', category: 'python', description: 'pip install boto3 - podstawowa biblioteka do pracy z AWS' },
+      { id: 'aws-configure', text: 'Konfiguracja AWS credentials', category: 'aws', description: 'aws configure - IAM role z uprawnieniami do S3' },
+      { id: 's3-bucket-create', text: 'Tworzenie bucketów S3', category: 'aws', description: 'Stwórz bucket volt-data-lake dla danych aplikacji Volt' },
+      { id: 's3-upload-download', text: 'Upload/download plików', category: 'python', description: 'Prześlij przykładowe pliki CSV i zdjęcia z aplikacji Volt' },
+      { id: 'presigned-urls', text: 'Generowanie presigned URLs', category: 'python', description: 'Wygeneruj bezpieczne linki do zdjęć komponentów' },
+      { id: 'iam-policies', text: 'Zarządzanie uprawnieniami IAM', category: 'aws', description: 'Skonfiguruj IAM policies z least privilege' },
     ],
-    output: 'repo etl/, README + diagram przepływu danych',
+    output: 'Bucket S3 z przykładowymi danymi, działające presigned URLs',
+    detailedDescription: `### Dzień 1-2: Python + AWS S3 (boto3) - podstawy z Volt
+
+**Cel:** Opanować boto3 i podstawowe operacje S3 używając danych z aplikacji Volt.
+
+**Zadania:**
+- [ ] **Instalacja boto3:** \`pip install boto3\`
+- [ ] **Konfiguracja AWS:** \`aws configure\`, IAM role z uprawnieniami S3
+- [ ] **Tworzenie bucketów:** Stwórz bucket \`volt-data-lake\`
+- [ ] **Upload/download plików:** Prześlij przykładowe pliki CSV i zdjęcia z Volt
+- [ ] **Presigned URLs:** Wygeneruj bezpieczne linki do zdjęć komponentów
+- [ ] **Zarządzanie uprawnieniami:** Skonfiguruj IAM policies z least privilege
+
+**Ćwiczenie praktyczne z Volt:**
+\`\`\`python
+# Stwórz bucket → wgraj dane komponentów z PostgreSQL → pobierz je → usuń testowe pliki
+from scripts.python.week4.volt_data_to_s3 import export_components_to_json, upload_components_to_s3
+components = export_components_to_json()
+upload_components_to_s3(components)
+\`\`\`
+
+**Output:** Bucket S3 z przykładowymi danymi, działające presigned URLs.
+
+---
+
+### Dzień 3-4: Praca z danymi – CSV/JSON/Parquet + Volt
+
+**Cel:** Nauczyć się transformacji danych używając rzeczywistych danych z aplikacji Volt.
+
+**Zadania:**
+- [ ] **Pandas basics:** \`pip install pandas pyarrow\`
+- [ ] **Wczytywanie danych:** CSV/JSON z PostgreSQL Volt
+- [ ] **Transformacje:** Czyszczenie, filtrowanie danych komponentów
+- [ ] **Zapis Parquet:** Konwersja danych Volt do formatu Parquet
+- [ ] **Upload do S3:** Przesyłanie przetworzonych danych
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Pobierz dane komponentów z Postgres → Pandas → Parquet → S3
+import pandas as pd
+from scripts.python.week4.volt_data_to_s3 import get_postgres_connection
+
+conn = get_postgres_connection()
+df = pd.read_sql("SELECT * FROM electrical_components WHERE price > 0", conn)
+df.to_parquet("volt_components.parquet")
+# Upload do S3...
+\`\`\`
+
+**Output:** Dane komponentów w formacie Parquet w S3, skrypt transformacji.
+
+---
+
+### Dzień 5: Eventy S3 + Lambda (Python) + Volt
+
+**Cel:** Event-driven processing dla automatycznej obróbki danych z aplikacji Volt.
+
+**Zadania:**
+- [ ] **Lambda function:** Stwórz funkcję do konwersji CSV→Parquet
+- [ ] **S3 events:** Skonfiguruj trigger na upload plików do S3
+- [ ] **Testowanie lokalnie:** Użyj AWS SAM lub mocków boto3
+- [ ] **Integracja z Volt:** Lambda wywołuje się przy uploadzie zdjęć
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Upload zdjęcia komponentu → Lambda zmniejsza rozmiar → zapis do innego bucketu
+# Użyj scripts/python/week5/lambda_csv_to_parquet.py jako template
+\`\`\`
+
+**Output:** Lambda function reagująca na uploady plików z aplikacji Volt.
+
+---
+
+### Dzień 6-7: Integracja z API / Secrets Manager + Volt
+
+**Cel:** Łączenie danych z aplikacji Volt z zewnętrznymi źródłami.
+
+**Zadania:**
+- [ ] **API Gateway:** REST API do pobierania danych
+- [ ] **Secrets Manager:** Bezpieczne przechowywanie kluczy bazy danych
+- [ ] **Łączenie danych:** API + PostgreSQL Volt + S3
+- [ ] **Error handling:** Retry, timeout, logging błędów
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Pobierz dane z zewnętrznego API → połącz z danymi komponentów → zapisz do S3 → log w Postgres
+# Integracja z istniejącym Node.js API Volt
+\`\`\`
+
+**Output:** Python API endpoints komunikujące się z aplikacją Volt.`,
+    exercises: [
+      {
+        title: 'Podstawowe operacje S3',
+        description: 'Przećwicz tworzenie bucketu, upload plików i generowanie presigned URLs',
+        code: `# Przykład kodu do ćwiczenia
+from scripts.python.week4.volt_data_to_s3 import export_components_to_json, upload_components_to_s3
+
+# Eksport danych z aplikacji Volt
+components = export_components_to_json()
+print(f"Pobrano {len(components)} komponentów")
+
+# Upload do S3
+s3_key = upload_components_to_s3(components)
+print(f"Dane przesłane do S3: {s3_key}")
+`
+      }
+    ],
     quiz: {
       id: 'week4-quiz',
       questions: [
         {
-          id: 'q1-rate-limits',
-          question: 'Dlaczego ważne jest obsługiwanie rate limits w ETL pipeline?',
+          id: 'q1-s3-bucket-naming',
+          question: 'Jakie są zasady nazywania bucketów S3?',
           options: [
         {
-          id: 'rate-limits-optional',
-          text: 'Rate limits są opcjonalne - można je ignorować',
-          explanation: 'Nieprawda. Ignorowanie rate limits prowadzi do błędów 429 (Too Many Requests), banów IP i niestabilności pipeline. To kluczowy element każdego ETL.',
-          isCorrect: false
+          id: 'bucket-global-unique',
+          text: 'Buckety muszą mieć unikalne nazwy globalnie w całym AWS',
+          explanation: 'Poprawnie! Nazwy bucketów S3 są globalnie unikalne - nie możesz mieć dwóch bucketów o tej samej nazwie, nawet w różnych regionach.',
+          isCorrect: true
         },
         {
-          id: 'rate-limits-important',
-          text: 'Rate limits chronią przed banami API, błędami 429 i zapewniają stabilność pipeline',
-          explanation: 'Poprawnie! Rate limits są mechanizmem ochronnym API. Ich przestrzeganie zapobiega banom, błędom 429 i zapewnia stabilną pracę pipeline. Implementuje się je przez backoff i throttling.',
-          isCorrect: true
+          id: 'bucket-local-unique',
+          text: 'Buckety muszą mieć unikalne nazwy tylko w ramach jednego regionu',
+          explanation: 'Nieprawda. Buckety mają globalnie unikalne nazwy. Jeśli ktoś już używa nazwy "my-bucket", nie możesz jej użyć.',
+          isCorrect: false
         }
           ]
         }
@@ -2059,35 +2168,170 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week5',
     week: 'Tydzień 5',
-    title: 'Airflow Basics',
-    description: 'Cel: pipeline ≠ cron',
-    startDate: '2025-01-20',
-    endDate: '2025-01-26',
+    title: 'Airflow + Analytics - dni 8-14',
+    description: 'Cel: kompletny pipeline od danych do analizy',
+    startDate: '2025-02-08',
+    endDate: '2025-02-14',
     isBreak: false,
-    tasks: [
-      { id: 'airflow-setup', text: 'Airflow na EC2 / docker', category: 'airflow' },
-      { id: 'airflow-dag', text: 'DAG: schedule, retries, dependencies', category: 'airflow' },
-      { id: 'airflow-extract', text: 'DAG: extract_api_data', category: 'airflow' },
+    detailedDescription: `### Dzień 8-9: Airflow + S3 + Volt
+
+**Cel:** Orkiestracja pipeline'ów danych dla aplikacji Volt.
+
+**Zadania:**
+- [ ] **Instalacja Airflow:** \`pip install apache-airflow\`
+- [ ] **Podstawy DAG:** Directed Acyclic Graphs
+- [ ] **Operatorzy:** S3Hook, PythonOperator, PostgresOperator
+- [ ] **Monitoring:** Logi, alerty, status zadań
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# DAG: Pobierz nowe komponenty z Postgres → transform Pandas → upload do S3
+# Użyj danych z aplikacji Volt jako przykład
+\`\`\`
+
+**Output:** Działaący DAG Airflow przetwarzający dane z Volt.
+
+---
+
+### Dzień 10-11: Redshift/Athena (opcjonalnie Postgres) + Volt
+
+**Cel:** Analiza danych z S3 używając różnych narzędzi.
+
+**Zadania:**
+- [ ] **Schematy w Postgres:** Tabele analityczne dla danych Volt
+- [ ] **COPY z S3:** Ładowanie danych Parquet do Postgres
+- [ ] **Query danych:** Agregacje, JOIN z oryginalnymi danymi Volt
+- [ ] **Athena:** Query bezpośrednio na S3 (bez kopiowania)
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Z S3 wrzuć dane komponentów → Postgres → zapytanie o top komponenty → wynik do S3
+# Połącz z istniejącą tabelą electrical_components
+\`\`\`
+
+**Output:** Analityczna baza danych z danymi z aplikacji Volt.
+
+---
+
+### Dzień 12: Transformacje i automatyzacja + Volt
+
+**Cel:** Zaawansowane transformacje danych z aplikacji Volt.
+
+**Zadania:**
+- [ ] **Pandas transformacje:** Zaawansowane operacje na danych
+- [ ] **Walidacja danych:** Sprawdzenie poprawności danych Volt
+- [ ] **Filtrowanie:** Usuwanie błędnych/duplikatów komponentów
+- [ ] **Testowanie:** Unit tests dla funkcji transformacji
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Walidacja danych komponentów: cena > 0, nazwa nie pusta, prawidłowe typy
+# Transformacje: normalizacja nazw, kategorie, obliczone kolumny
+\`\`\`
+
+**Output:** Czysty, przetworzony dataset z aplikacji Volt.
+
+---
+
+### Dzień 13: Monitoring i logowanie + Volt
+
+**Cel:** Monitoring pipeline'ów przetwarzających dane z aplikacji Volt.
+
+**Zadania:**
+- [ ] **CloudWatch:** Logi dla Lambda i S3 (jeśli AWS)
+- [ ] **Python logging:** Szczegółowe logi operacji
+- [ ] **Airflow monitoring:** Status DAG, alerty błędów
+- [ ] **Metrics:** Czas wykonania, liczba przetworzonych rekordów
+
+**Ćwiczenie z Volt:**
+\`\`\`python
+# Logowanie każdej operacji na danych komponentów
+# Alert przy błędzie w pipeline Volt → S3
+\`\`\`
+
+**Output:** Kompletny monitoring pipeline'ów Volt.
+
+---
+
+### Dzień 14: Mini-projekt końcowy - Pełny Pipeline Volt
+
+**Cel:** Zintegrowanie wszystkiego w działający end-to-end pipeline.
+
+**Zadania:**
+- [ ] **Pełny pipeline:** Postgres Volt + API → Pandas → Parquet → S3
+- [ ] **Lambda trigger:** Automatyczna obróbka uploadów
+- [ ] **Airflow orchestration:** DAG zarządzający całym procesem
+- [ ] **Monitoring:** Logi, alerty, dashboard statusu
+
+**Mini-projekt Volt:**
+\`\`\`
+1. Pobierz nowe komponenty z Postgres Volt
+2. Pobierz dodatkowe dane z API (np. ceny rynkowe)
+3. Transformacja Pandas (oczyszczanie, agregacje)
+4. Konwersja do Parquet
+5. Upload do S3 z partycjonowaniem
+6. Lambda walidacja i dodatkowe transformacje
+7. Załadunek do analitycznej bazy danych
+8. Monitoring i alerty
+\`\`\`
+
+**Output:** Produkcyjny pipeline dla aplikacji Volt z pełnym monitoringiem!`,
+    exercises: [
+      {
+        title: 'Transformacje danych z Pandas',
+        description: 'Przećwicz wczytywanie danych z PostgreSQL, czyszczenie i konwersję do Parquet',
+        code: `# Przykład ćwiczenia z Pandas
+import pandas as pd
+from scripts.python.week4.volt_data_to_s3 import get_postgres_connection
+
+# Połącz z bazą danych Volt
+conn = get_postgres_connection()
+
+# Wczytaj dane komponentów
+df = pd.read_sql("""
+    SELECT id, name, price, type, voltage, current
+    FROM electrical_components
+    WHERE price > 0 AND price < 1000
+""", conn)
+
+print(f"Wczytano {len(df)} komponentów")
+print(f"Kolumny: {list(df.columns)}")
+
+# Transformacje danych
+df['price_category'] = pd.cut(df['price'], bins=[0, 100, 500, float('inf')],
+                             labels=['budget', 'standard', 'premium'])
+
+# Zapisz jako Parquet
+df.to_parquet('volt_components_clean.parquet', index=False)
+print("Dane zapisane jako Parquet")
+`
+      }
     ],
-    output: 'DAG: extract_api_data',
+    tasks: [
+      { id: 'pandas-basics', text: 'Pandas basics - wczytywanie danych z PostgreSQL Volt', category: 'python', description: 'pip install pandas pyarrow - podstawowe operacje na danych' },
+      { id: 'data-cleaning', text: 'Czyszczenie i filtrowanie danych komponentów', category: 'python', description: 'Usuwanie NULLi, normalizacja, walidacja danych z aplikacji Volt' },
+      { id: 'parquet-conversion', text: 'Konwersja do Parquet i upload do S3', category: 'python', description: 'Zamiana danych z PostgreSQL na format Parquet optymalny dla analizy' },
+      { id: 'data-validation', text: 'Walidacja struktury danych', category: 'python', description: 'Sprawdzenie poprawności schematu i typów danych' },
+    ],
+    output: 'Dane komponentów w formacie Parquet w S3, skrypt transformacji',
     quiz: {
       id: 'week5-quiz',
       questions: [
         {
-          id: 'q1-airflow-cron',
-          question: 'Dlaczego Airflow jest lepszy niż cron dla orchestracji pipeline danych?',
+          id: 'q1-parquet-csv',
+          question: 'Dlaczego Parquet jest lepszy niż CSV dla analitycznych obciążeń?',
           options: [
         {
-          id: 'airflow-cheaper',
-          text: 'Airflow jest zawsze tańszy niż cron',
-          explanation: 'Nieprawda - Airflow wymaga więcej zasobów. Główną zaletą jest kontrola zależności, retry, monitoring i wizualizacja, których cron nie oferuje.',
-          isCorrect: false
+          id: 'parquet-compression',
+          text: 'Parquet ma lepszą kompresję i czyta tylko potrzebne kolumny',
+          explanation: 'Poprawnie! Parquet to format kolumnowy z doskonałą kompresją (75-90% mniej miejsca) i optymalizacją - czyta tylko potrzebne kolumny, co jest idealne dla zapytań analitycznych.',
+          isCorrect: true
         },
         {
-          id: 'airflow-features',
-          text: 'Airflow oferuje kontrolę zależności, retry, monitoring i wizualizację - czego brakuje w cron',
-          explanation: 'Poprawnie! Airflow pozwala definiować zależności między zadaniami, automatyczne retry przy błędach, monitoring wykonania i wizualizację DAGów. Cron tylko uruchamia zadania o określonej porze bez kontroli zależności.',
-          isCorrect: true
+          id: 'parquet-human-readable',
+          text: 'Parquet jest czytelny dla ludzi jak CSV',
+          explanation: 'Nieprawda. Parquet to binarny format kolumnowy - nie jest czytelny dla ludzi jak CSV. Jest zoptymalizowany pod maszyny, nie ludzi.',
+          isCorrect: false
         }
           ]
         }
@@ -2097,35 +2341,36 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week6',
     week: 'Tydzień 6',
-    title: 'Airflow + S3 + DB',
-    description: 'Cel: pipeline produkcyjny',
-    startDate: '2025-01-27',
-    endDate: '2025-02-02',
+    title: 'Eventy S3 + Lambda (Python) + Volt',
+    description: 'Cel: event-driven processing dla automatycznej obróbki danych z aplikacji Volt',
+    startDate: '2025-02-08',
+    endDate: '2025-02-14',
     isBreak: false,
     tasks: [
-      { id: 'airflow-extract-load', text: 'DAG: extract → load', category: 'airflow' },
-      { id: 'airflow-failures', text: 'task failures', category: 'airflow' },
-      { id: 'airflow-retry', text: 'retry logic', category: 'airflow' },
+      { id: 'lambda-csv-parquet', text: 'Lambda function do CSV→Parquet konwersji', category: 'aws', description: 'Stwórz funkcję Lambda automatycznie konwertującą pliki' },
+      { id: 's3-event-triggers', text: 'S3 event triggers dla automatycznej obróbki', category: 'aws', description: 'Skonfiguruj wyzwalacze S3 wywołujące Lambda przy uploadzie' },
+      { id: 'lambda-testing', text: 'Testowanie Lambda lokalnie', category: 'python', description: 'Użyj AWS SAM lub mocków boto3 do testowania' },
+      { id: 'volt-integration', text: 'Integracja z aplikacją Volt', category: 'python', description: 'Lambda reaguje na uploady plików z aplikacji Volt' },
     ],
-    output: 'pipeline działa automatycznie',
+    output: 'Lambda function reagująca na uploady plików z aplikacji Volt',
     quiz: {
       id: 'week6-quiz',
       questions: [
         {
-          id: 'q1-idempotency',
-          question: 'Co oznacza idempotency w kontekście pipeline danych?',
+          id: 'q1-lambda-cold-start',
+          question: 'Co to jest "cold start" w AWS Lambda?',
           options: [
         {
-          id: 'idempotency-once',
-          text: 'Zadanie może być wykonane tylko raz - kolejne wykonania są blokowane',
-          explanation: 'Nieprawda. Idempotency oznacza, że zadanie może być wykonane wiele razy z tym samym rezultatem, bez skutków ubocznych (duplikaty, błędy).',
-          isCorrect: false
+          id: 'lambda-cold-start',
+          text: 'Opóźnienie przy pierwszym wywołaniu Lambda po okresie bezczynności',
+          explanation: 'Poprawnie! Cold start to czas potrzebny na zainicjalizowanie środowiska Lambda przy pierwszym wywołaniu lub po okresie bezczynności. Może trwać od 100ms do kilku sekund.',
+          isCorrect: true
         },
         {
-          id: 'idempotency-multiple',
-          text: 'Zadanie może być wykonane wiele razy z tym samym rezultatem, bez skutków ubocznych',
-          explanation: 'Poprawnie! Idempotency to kluczowa właściwość - zadanie może być bezpiecznie uruchomione wielokrotnie (np. przy retry, backfill) i zawsze da ten sam rezultat bez duplikatów czy błędów.',
-          isCorrect: true
+          id: 'lambda-cold-start-wrong',
+          text: 'Błąd Lambda przy zbyt niskiej temperaturze',
+          explanation: 'Nieprawda. Cold start to termin techniczny związany z czasem uruchamiania funkcji Lambda, nie ma nic wspólnego z temperaturą.',
+          isCorrect: false
         }
           ]
         }
@@ -2135,36 +2380,36 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week7',
     week: 'Tydzień 7',
-    title: 'dbt Fundamentals',
-    description: 'Cel: transformacje jako kod',
-    startDate: '2025-02-03',
-    endDate: '2025-02-09',
+    title: 'Integracja z API / Secrets Manager + Volt',
+    description: 'Cel: łączenie danych z aplikacji Volt z zewnętrznymi źródłami',
+    startDate: '2025-02-15',
+    endDate: '2025-02-21',
     isBreak: false,
     tasks: [
-      { id: 'dbt-models', text: 'dbt models', category: 'dbt' },
-      { id: 'dbt-sources', text: 'sources', category: 'dbt' },
-      { id: 'dbt-refs', text: 'refs', category: 'dbt' },
-      { id: 'dbt-incremental', text: 'incremental models', category: 'dbt' },
+      { id: 'api-gateway', text: 'API Gateway + REST API', category: 'aws', description: 'Tworzenie REST API do pobierania danych' },
+      { id: 'secrets-manager', text: 'Secrets Manager dla bezpiecznego przechowywania kluczy', category: 'aws', description: 'Zarządzanie kluczami API i hasłami do baz danych' },
+      { id: 'api-data-merging', text: 'Łączenie danych API + PostgreSQL Volt + S3', category: 'python', description: 'Integracja wielu źródeł danych' },
+      { id: 'error-handling', text: 'Error handling: retry, timeout, logging', category: 'python', description: 'Obsługa błędów w integracjach API' },
     ],
-    output: 'staging_*.sql, mart_*.sql',
+    output: 'Python API endpoints komunikujące się z aplikacją Volt',
     quiz: {
       id: 'week7-quiz',
       questions: [
         {
-          id: 'q1-dbt-models',
-          question: 'Czym są dbt models i jak różnią się od zwykłych SQL queries?',
+          id: 'q1-secrets-manager',
+          question: 'Dlaczego warto używać AWS Secrets Manager zamiast hardkodowanych haseł?',
           options: [
         {
-          id: 'dbt-same',
-          text: 'dbt models to po prostu zwykłe zapytania SQL bez różnicy',
-          explanation: 'Nieprawda. dbt models to SQL jako kod z wersjonowaniem, testami, dokumentacją i zależnościami między modelami. To znacznie więcej niż zwykłe zapytania.',
-          isCorrect: false
+          id: 'secrets-security',
+          text: 'Automatyczna rotacja sekretów, szyfrowanie, audyt dostępu',
+          explanation: 'Poprawnie! Secrets Manager zapewnia automatyczną rotację haseł, szyfrowanie, szczegółowy audyt dostępu i centralne zarządzanie wszystkimi sekretami.',
+          isCorrect: true
         },
         {
-          id: 'dbt-different',
-          text: 'dbt models to SQL jako kod z wersjonowaniem, testami, dokumentacją i zależnościami',
-          explanation: 'Poprawnie! dbt models pozwalają traktować transformacje jak kod - wersjonowanie w Git, testy jakości danych, dokumentacja, ref() do zależności między modelami. To znacznie ułatwia utrzymanie hurtowni danych.',
-          isCorrect: true
+          id: 'secrets-cheaper',
+          text: 'Jest tańszy niż trzymanie haseł w kodzie',
+          explanation: 'Chociaż Secrets Manager ma koszty, to nie jest główny powód jego używania. Główną wartością jest bezpieczeństwo i możliwość automatycznej rotacji sekretów.',
+          isCorrect: false
         }
           ]
         }
@@ -2174,36 +2419,37 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week8',
     week: 'Tydzień 8',
-    title: 'dbt + Testy Jakości',
-    description: 'Cel: data quality (must-have z oferty)',
-    startDate: '2025-02-10',
-    endDate: '2025-02-16',
+    title: 'Airflow + S3 + Volt',
+    description: 'Cel: orkiestracja pipeline\'ów danych dla aplikacji Volt',
+    startDate: '2025-02-22',
+    endDate: '2025-02-28',
     isBreak: false,
     tasks: [
-      { id: 'dbt-tests-not-null', text: 'dbt tests: not null', category: 'dbt' },
-      { id: 'dbt-tests-unique', text: 'unique', category: 'dbt' },
-      { id: 'dbt-tests-accepted', text: 'accepted values', category: 'dbt' },
-      { id: 'dbt-freshness', text: 'freshness checks', category: 'dbt' },
+      { id: 'airflow-setup', text: 'Instalacja Airflow', category: 'airflow', description: 'pip install apache-airflow, konfiguracja bazy danych' },
+      { id: 'dag-basics', text: 'Podstawy DAG: Directed Acyclic Graphs', category: 'airflow', description: 'Zrozumienie koncepcji DAG i zależności między zadaniami' },
+      { id: 'airflow-operators', text: 'Operatorzy: S3Hook, PythonOperator, PostgresOperator', category: 'airflow', description: 'Korzystanie z gotowych operatorów Airflow' },
+      { id: 'volt-dag', text: 'DAG dla pipeline\'u Volt → S3', category: 'airflow', description: 'Praktyczny DAG przetwarzający dane z aplikacji Volt' },
+      { id: 'airflow-monitoring', text: 'Monitoring: logi, alerty, status zadań', category: 'airflow', description: 'Śledzenie wykonania i debugowanie pipeline\'ów' },
     ],
-    output: 'failing test = failing pipeline',
+    output: 'Działaący DAG Airflow przetwarzający dane z Volt',
     quiz: {
       id: 'week8-quiz',
       questions: [
         {
-          id: 'q1-data-quality',
-          question: 'Dlaczego testy jakości danych są ważne w data engineering?',
+          id: 'q1-airflow-dag',
+          question: 'Co oznacza DAG w kontekście Apache Airflow?',
           options: [
         {
-          id: 'tests-optional',
-          text: 'Testy są opcjonalne - dane zawsze są poprawne',
-          explanation: 'Nieprawda. Dane często zawierają błędy, NULLe, duplikaty, nieprawidłowe wartości. Testy wykrywają te problemy zanim trafią do użytkowników biznesowych.',
-          isCorrect: false
+          id: 'dag-airflow',
+          text: 'Directed Acyclic Graph - skierowany graf acykliczny reprezentujący workflow',
+          explanation: 'Poprawnie! DAG to matematyczna struktura danych - skierowany graf bez cykli. W Airflow reprezentuje przepływ zadań z zależnościami między nimi.',
+          isCorrect: true
         },
         {
-          id: 'tests-important',
-          text: 'Testy wykrywają błędy danych zanim trafią do użytkowników i chronią przed błędnymi decyzjami biznesowymi',
-          explanation: 'Poprawnie! Testy jakości danych (not null, unique, accepted values, freshness) wykrywają problemy wcześnie. Błędy danych są trudniejsze do wykrycia niż błędy aplikacji, więc testy są kluczowe.',
-          isCorrect: true
+          id: 'dag-database',
+          text: 'Database Access Gateway - bramka dostępu do bazy danych',
+          explanation: 'Nieprawda. DAG w Airflow to Directed Acyclic Graph, nie ma nic wspólnego z dostępem do bazy danych.',
+          isCorrect: false
         }
           ]
         }
@@ -2213,35 +2459,36 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week9',
     week: 'Tydzień 9',
-    title: 'Monitoring & Logi',
-    description: 'Cel: wiesz, że coś padło ZANIM ktoś zapyta',
-    startDate: '2025-02-17',
-    endDate: '2025-02-23',
+    title: 'Redshift/Athena + Volt',
+    description: 'Cel: analiza danych z S3 używając różnych narzędzi',
+    startDate: '2025-03-01',
+    endDate: '2025-03-07',
     isBreak: false,
     tasks: [
-      { id: 'airflow-logs', text: 'Airflow logs', category: 'monitoring' },
-      { id: 'cloudwatch', text: 'CloudWatch basics', category: 'monitoring' },
-      { id: 'alerts', text: 'Slack / email alert', category: 'monitoring' },
+      { id: 'postgres-analytics', text: 'Schematy analityczne w Postgres dla danych Volt', category: 'sql', description: 'Tworzenie tabel analitycznych z danymi komponentów' },
+      { id: 's3-data-loading', text: 'COPY z S3 i ładowanie danych Parquet', category: 'sql', description: 'Efektywne ładowanie danych z S3 do bazy analitycznej' },
+      { id: 'analytics-queries', text: 'Zapytania agregujące i analiza danych', category: 'sql', description: 'Analiza biznesowa danych z aplikacji Volt' },
+      { id: 'athena-queries', text: 'Athena: query bezpośrednio na S3', category: 'aws', description: 'Analiza danych bez kopiowania do bazy' },
     ],
-    output: 'alert "pipeline failed"',
+    output: 'Analityczna baza danych z danymi z aplikacji Volt',
     quiz: {
       id: 'week9-quiz',
       questions: [
         {
-          id: 'q1-monitoring',
-          question: 'Jaka jest różnica między monitoring pipeline a data quality monitoring?',
+          id: 'q1-athena-vs-redshift',
+          question: 'Kiedy wybrać Athena zamiast Redshift?',
           options: [
         {
-          id: 'monitoring-same',
-          text: 'To to samo - monitoring to monitoring',
-          explanation: 'Nieprawda. Monitoring pipeline mówi czy proces się wykonał (techniczne metryki). Data quality mówi czy dane mają sens (biznesowe metryki). Oba są potrzebne.',
-          isCorrect: false
+          id: 'athena-cheap',
+          text: 'Dla rzadkich zapytań na dużych danych bez potrzeby stałej bazy',
+          explanation: 'Poprawnie! Athena jest idealna dla sporadycznych zapytań na danych w S3 - płacisz tylko za przetworzone dane. Redshift lepiej nadaje się do częstych zapytań wymagających stałej dostępności.',
+          isCorrect: true
         },
         {
-          id: 'monitoring-different',
-          text: 'Pipeline monitoring sprawdza czy proces się wykonał, data quality czy dane mają sens',
-          explanation: 'Poprawnie! Pipeline monitoring: czy zadanie się wykonało, ile czasu trwało, czy były błędy. Data quality: czy dane są kompletne, poprawne, świeże, bez anomalii. Pipeline może działać, ale dane mogą być błędne.',
-          isCorrect: true
+          id: 'athena-always',
+          text: 'Athena jest zawsze lepsza od Redshift',
+          explanation: 'Nieprawda. Athena jest świetna dla ad-hoc zapytań, ale Redshift lepiej nadaje się do złożonych, częstych zapytań wymagających optymalizacji i stałej dostępności.',
+          isCorrect: false
         }
           ]
         }
@@ -2251,34 +2498,35 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week10',
     week: 'Tydzień 10',
-    title: 'Error Handling & Backfill',
-    description: 'Cel: produkcyjna odporność',
-    startDate: '2025-02-24',
-    endDate: '2025-03-02',
+    title: 'Transformacje i automatyzacja + Volt',
+    description: 'Cel: zaawansowane transformacje danych z aplikacji Volt',
+    startDate: '2025-03-08',
+    endDate: '2025-03-14',
     isBreak: false,
     tasks: [
-      { id: 'backfill', text: 'backfill DAG', category: 'airflow' },
-      { id: 'partial-reruns', text: 'partial re-runs', category: 'airflow' },
-      { id: 'idempotency', text: 'idempotency', category: 'airflow' },
+      { id: 'advanced-pandas', text: 'Zaawansowane transformacje Pandas dla danych Volt', category: 'python', description: 'Złożone operacje na danych komponentów' },
+      { id: 'data-validation-rules', text: 'Walidacja i testowanie danych komponentów', category: 'python', description: 'Sprawdzenie poprawności danych: cena > 0, prawidłowe typy' },
+      { id: 'business-logic', text: 'Logika biznesowa: kategorie, obliczone metryki', category: 'python', description: 'Dodanie obliczeń biznesowych do danych' },
+      { id: 'unit-tests', text: 'Unit tests dla funkcji transformacji', category: 'python', description: 'Testowanie funkcji przetwarzania danych' },
     ],
-    output: 'README: "jak recoverować dane"',
+    output: 'Czysty, przetworzony dataset z aplikacji Volt z logiką biznesową',
     quiz: {
       id: 'week10-quiz',
       questions: [
         {
-          id: 'q1-backfill',
-          question: 'Co to jest backfill w kontekście pipeline danych?',
+          id: 'q1-data-validation',
+          question: 'Dlaczego walidacja danych jest ważna w pipeline\'ach?',
           options: [
         {
-          id: 'backfill-delete',
-          text: 'Usuwanie starych danych z pipeline',
-          explanation: 'Nieprawda. Backfill to uzupełnianie danych historycznych - przetwarzanie danych z przeszłości, które nie były wcześniej przetworzone (np. po naprawie błędu, dodaniu nowego źródła).',
+          id: 'validation-optional',
+          text: 'Walidacja jest opcjonalna - dane zawsze są poprawne',
+          explanation: 'Nieprawda. Źródła danych często zawierają błędy, niespójności, brakujące wartości. Walidacja wychwytuje te problemy przed przekazaniem do użytkowników biznesowych.',
           isCorrect: false
         },
         {
-          id: 'backfill-fill',
-          text: 'Uzupełnianie danych historycznych - przetwarzanie danych z przeszłości',
-          explanation: 'Poprawnie! Backfill pozwala przetworzyć dane historyczne (np. ostatnie 30 dni) po naprawie błędu w pipeline lub dodaniu nowego źródła danych. Airflow umożliwia backfill dla określonego zakresu dat.',
+          id: 'validation-critical',
+          text: 'Wychwytuje błędy danych przed przekazaniem do analityków i zapobiega błędnym decyzjom',
+          explanation: 'Poprawnie! Walidacja danych to krytyczny element - błędy w danych prowadzą do błędnych decyzji biznesowych. Lepiej wykryć problem w pipeline\'ie niż w dashboardzie.',
           isCorrect: true
         }
           ]
@@ -2289,36 +2537,37 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week11',
     week: 'Tydzień 11',
-    title: 'CI/CD',
-    description: 'Cel: zero ręcznych deployów',
-    startDate: '2025-03-03',
-    endDate: '2025-03-09',
+    title: 'Monitoring i logowanie + Volt',
+    description: 'Cel: monitoring pipeline\'ów przetwarzających dane z aplikacji Volt',
+    startDate: '2025-03-15',
+    endDate: '2025-03-21',
     isBreak: false,
     tasks: [
-      { id: 'github-lint', text: 'GitHub Actions: lint', category: 'cicd' },
-      { id: 'github-tests', text: 'tests', category: 'cicd' },
-      { id: 'github-dbt', text: 'dbt run/test', category: 'cicd' },
+      { id: 'logging-setup', text: 'Szczegółowe logowanie operacji na danych komponentów', category: 'python', description: 'Logowanie każdej transformacji i transferu danych' },
+      { id: 'error-monitoring', text: 'Monitorowanie błędów i anomalii', category: 'monitoring', description: 'Śledzenie błędów w pipeline\'ach Volt' },
+      { id: 'performance-metrics', text: 'Metryki wydajności: czas wykonania, liczba rekordów', category: 'monitoring', description: 'Pomiar efektywności przetwarzania' },
+      { id: 'alert-system', text: 'System alertów przy błędach w pipeline\'ach', category: 'monitoring', description: 'Powiadomienia o problemach z danymi Volt' },
     ],
-    output: 'pipeline CI',
+    output: 'Kompletny monitoring pipeline\'ów z aplikacji Volt',
     quiz: {
       id: 'week11-quiz',
       questions: [
         {
-          id: 'q1-cicd',
-          question: 'Dlaczego CI/CD jest ważne dla pipeline danych?',
+          id: 'q1-logging-levels',
+          question: 'Które poziomy logowania są najważniejsze w data engineering?',
           options: [
-            {
-              id: 'cicd-optional',
-              text: 'CI/CD jest opcjonalne - można deployować ręcznie',
-              explanation: 'Ręczne deployy są podatne na błędy, brak kontroli wersji i trudne do śledzenia. CI/CD automatyzuje testy i deploy, zapewniając jakość i powtarzalność.',
-              isCorrect: false
-            },
-            {
-              id: 'cicd-important',
-              text: 'CI/CD automatyzuje testy i deploy, wykrywa błędy przed produkcją i zapewnia powtarzalność',
-              explanation: 'Poprawnie! CI/CD uruchamia testy (lint, unit tests, dbt tests) przy każdym pushu. Błędy są wykrywane przed wdrożeniem na produkcję, co chroni przed problemami z danymi.',
-              isCorrect: true
-            }
+        {
+          id: 'logging-info-debug',
+          text: 'INFO i DEBUG dla szczegółowego śledzenia',
+          explanation: 'Poprawnie! INFO pokazuje postęp operacji, DEBUG pozwala na szczegółowe śledzenie problemów. ERROR i WARNING są krytyczne dla wykrywania awarii.',
+          isCorrect: true
+        },
+        {
+          id: 'logging-only-errors',
+          text: 'Tylko ERROR - inne poziomy nie są potrzebne',
+          explanation: 'Nieprawda. Bez INFO i DEBUG trudno zrozumieć co się dzieje w pipeline\'ie. Monitoring to nie tylko błędy, ale też śledzenie postępów i wydajności.',
+          isCorrect: false
+        }
           ]
         }
       ]
@@ -2327,194 +2576,46 @@ WHERE storage_class = 'STANDARD'
   {
     id: 'week12',
     week: 'Tydzień 12',
-    title: 'IAM & Security',
-    description: 'Cel: "least privilege"',
-    startDate: '2025-03-10',
-    endDate: '2025-03-16',
+    title: 'Mini-projekt końcowy - Pełny Pipeline Volt',
+    description: 'Cel: zintegrowanie wszystkiego w działający end-to-end pipeline',
+    startDate: '2025-03-22',
+    endDate: '2025-03-28',
     isBreak: false,
     tasks: [
-      { id: 'iam-roles', text: 'IAM roles', category: 'aws' },
-      { id: 'secrets-manager', text: 'secrets (AWS Secrets Manager)', category: 'aws' },
-      { id: 'no-passwords', text: 'brak haseł w kodzie', category: 'aws' },
+      { id: 'full-pipeline-design', text: 'Projekt pełnego pipeline\'u Volt end-to-end', category: 'other', description: 'Zaprojektowanie kompletnego przepływu danych' },
+      { id: 'pipeline-implementation', text: 'Implementacja: Postgres Volt + API → Pandas → Parquet → S3', category: 'python', description: 'Zbudowanie działającego pipeline\'u' },
+      { id: 'lambda-integration', text: 'Lambda trigger: automatyczna obróbka uploadów', category: 'aws', description: 'Event-driven processing dla nowych danych' },
+      { id: 'airflow-orchestration', text: 'Airflow orchestration: DAG zarządzający całym procesem', category: 'airflow', description: 'Centralne zarządzanie pipeline\'em' },
+      { id: 'monitoring-dashboard', text: 'Monitoring i alerty dla całego pipeline\'u', category: 'monitoring', description: 'Kompletny monitoring i alerting' },
+      { id: 'documentation', text: 'Dokumentacja i prezentacja projektu', category: 'other', description: 'Opis architektury, decyzji, przyszłych ulepszeń' },
     ],
-    output: 'diagram security flow',
+    output: 'Produkcyjny pipeline dla aplikacji Volt z pełnym monitoringiem!',
     quiz: {
       id: 'week12-quiz',
       questions: [
         {
-          id: 'q1-least-privilege',
-          question: 'Co oznacza zasada "least privilege" w kontekście bezpieczeństwa AWS?',
+          id: 'q1-production-readiness',
+          question: 'Co jest najważniejsze dla produkcyjnej gotowości data pipeline?',
           options: [
-            {
-              id: 'least-privilege-all',
-              text: 'Wszystkie zasoby powinny mieć pełny dostęp do wszystkiego',
-              explanation: 'Nieprawda - to byłoby bardzo niebezpieczne. Least privilege oznacza minimalny niezbędny dostęp - zasób ma tylko uprawnienia potrzebne do wykonania swojej funkcji.',
-              isCorrect: false
-            },
-            {
-              id: 'least-privilege-minimal',
-              text: 'Zasoby powinny mieć tylko minimalny niezbędny dostęp do wykonania swojej funkcji',
-              explanation: 'Poprawnie! Least privilege to zasada bezpieczeństwa: każdy zasób (EC2, Lambda, użytkownik) ma tylko minimalne uprawnienia potrzebne do działania. Zmniejsza to ryzyko w przypadku kompromitacji.',
-              isCorrect: true
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 'week13',
-    week: 'Tydzień 13',
-    title: 'Warehouse Upgrade',
-    description: 'Cel: bliżej oferty',
-    startDate: '2025-03-17',
-    endDate: '2025-03-23',
-    isBreak: false,
-    tasks: [
-      { id: 'redshift', text: 'Redshift / Snowflake (opcjonalnie)', category: 'aws' },
-      { id: 'query-optimization', text: 'optymalizacja zapytań', category: 'sql' },
-    ],
-    output: '',
-    quiz: {
-      id: 'week13-quiz',
-      questions: [
         {
-          id: 'q1-redshift',
-          question: 'Kiedy warto przejść z RDS na Redshift lub Snowflake?',
-          options: [
-            {
-              id: 'redshift-always',
-              text: 'Zawsze - Redshift jest zawsze lepszy niż RDS',
-              explanation: 'Nieprawda. RDS jest wystarczający dla mniejszych projektów. Redshift/Snowflake są lepsze dla dużych wolumenów danych analitycznych, złożonych zapytań i wymagań skalowania.',
-              isCorrect: false
-            },
-            {
-              id: 'redshift-when-needed',
-              text: 'Gdy potrzebujesz przetwarzać duże wolumeny danych analitycznych i złożone zapytania',
-              explanation: 'Poprawnie! Redshift/Snowflake są zoptymalizowane pod analitykę - columnar storage, parallel processing, lepsze dla OLAP niż OLTP. Przejście ma sens przy dużych wolumenach i złożonych zapytaniach analitycznych.',
-              isCorrect: true
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 'week14',
-    week: 'Tydzień 14',
-    title: 'Cost & Performance',
-    description: 'Cel: myślisz jak owner',
-    startDate: '2025-03-24',
-    endDate: '2025-03-30',
-    isBreak: false,
-    tasks: [
-      { id: 'cost-ec2', text: 'koszty: EC2', category: 'other' },
-      { id: 'cost-s3', text: 'S3', category: 'other' },
-      { id: 'cost-rds', text: 'RDS', category: 'other' },
-    ],
-    output: 'sekcja "cost considerations"',
-    quiz: {
-      id: 'week14-quiz',
-      questions: [
+          id: 'production-monitoring',
+          text: 'Monitoring, alerting, error handling i dokumentacja',
+          explanation: 'Poprawnie! Produkcyjny pipeline potrzebuje: monitoringu (aby wiedzieć o problemach), alertingu (aby reagować), obsługi błędów (aby być odpornym) i dokumentacji (aby móc utrzymywać).',
+          isCorrect: true
+        },
         {
-          id: 'q1-cost-control',
-          question: 'Jak kontrolować koszty w data platform na AWS?',
-          options: [
-            {
-              id: 'cost-ignore',
-              text: 'Koszty nie są ważne - zawsze wybieraj największe instancje',
-              explanation: 'Nieprawda. Koszty są kluczowe - niepotrzebnie duże instancje marnują pieniądze. Ważne jest monitorowanie, optymalizacja i wybór odpowiednich rozmiarów zasobów.',
-              isCorrect: false
-            },
-            {
-              id: 'cost-optimize',
-              text: 'Monitoruj usage, używaj odpowiednich rozmiarów instancji, unikaj pełnych reloadów, stosuj incremental processing',
-              explanation: 'Poprawnie! Kontrola kosztów to: monitoring użycia zasobów, wybór odpowiednich instance types, unikanie pełnych reloadów danych, incremental processing, automatyczne wyłączanie nieużywanych zasobów.',
-              isCorrect: true
-            }
+          id: 'production-speed',
+          text: 'Jak najszybsze przetwarzanie danych',
+          explanation: 'Szybkość jest ważna, ale nie najważniejsza. Produkcyjny pipeline musi być przede wszystkim niezawodny, monitorowany i łatwy w utrzymaniu.',
+          isCorrect: false
+        }
           ]
         }
       ]
     }
-  },
-  {
-    id: 'week15',
-    week: 'Tydzień 15',
-    title: 'Dokumentacja & Storytelling',
-    description: 'Cel: rekruter ROZUMIE projekt',
-    startDate: '2025-03-31',
-    endDate: '2025-04-06',
-    isBreak: false,
-    tasks: [
-      { id: 'readme-problem', text: 'README: problem', category: 'other' },
-      { id: 'readme-architecture', text: 'architektura', category: 'other' },
-      { id: 'readme-tradeoffs', text: 'trade-offs', category: 'other' },
-      { id: 'readme-future', text: 'future improvements', category: 'other' },
-    ],
-    output: '',
-    quiz: {
-      id: 'week15-quiz',
-      questions: [
-        {
-          id: 'q1-readme',
-          question: 'Co powinno znaleźć się w README projektu data engineering?',
-          options: [
-            {
-              id: 'readme-minimal',
-              text: 'Tylko instrukcja instalacji - nic więcej nie jest potrzebne',
-              explanation: 'Nieprawda. README powinno wyjaśniać problem biznesowy, architekturę, trade-offs i przyszłe ulepszenia. To kluczowe dla rekruterów i współpracowników.',
-              isCorrect: false
-            },
-            {
-              id: 'readme-comprehensive',
-              text: 'Problem biznesowy, architektura, trade-offs, przyszłe ulepszenia - wszystko co pomaga zrozumieć projekt',
-              explanation: 'Poprawnie! Dobry README wyjaśnia: jaki problem rozwiązuje projekt, jak działa architektura, jakie były trade-offs (kompromisy), co można ulepszyć w przyszłości. To pomaga rekruterom zrozumieć projekt.',
-              isCorrect: true
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    id: 'week16',
-    week: 'Tydzień 16',
-    title: 'Mock Interview',
-    description: 'Cel: umiesz to obronić',
-    startDate: '2025-04-07',
-    endDate: '2025-04-13',
-    isBreak: false,
-    tasks: [
-      { id: 'why-dbt', text: 'odpowiedzi na: "dlaczego dbt?"', category: 'other' },
-      { id: 'how-scale', text: '"jak skalować?"', category: 'other' },
-      { id: 'how-detect', text: '"jak wykrywasz błędy danych?"', category: 'other' },
-    ],
-    output: 'gotowe CV + projekt',
-    quiz: {
-      id: 'week16-quiz',
-      questions: [
-        {
-          id: 'q1-interview-prep',
-          question: 'Jak przygotować się do rozmowy o projekcie data engineering?',
-          options: [
-            {
-              id: 'interview-memorize',
-              text: 'Wystarczy zapamiętać nazwy technologii - szczegóły nie są ważne',
-              explanation: 'Nieprawda. Rekruterzy sprawdzają głębokie zrozumienie - dlaczego wybrałeś dane technologie, jakie były trade-offs, jak rozwiązywałeś problemy. Szczegóły są kluczowe.',
-              isCorrect: false
-            },
-            {
-              id: 'interview-understand',
-              text: 'Zrozum architekturę, trade-offs, problemy które rozwiązałeś i jak skalowałbyś projekt',
-              explanation: 'Poprawnie! Przygotuj się do odpowiedzi na: dlaczego wybrałeś dane technologie, jakie były trade-offs, jak rozwiązywałeś problemy, jak skalowałbyś projekt przy większym wolumenie danych. Głębokie zrozumienie jest ważniejsze niż lista technologii.',
-              isCorrect: true
-            }
-          ]
-        }
-      ]
-    }
-  },
+  }
 ];
+
 
 export const dataEngineerQuestions = [
   {
@@ -2527,117 +2628,191 @@ export const dataEngineerQuestions = [
   {
     id: 2,
     category: 'ARCHITEKTURA & DATA PLATFORM',
-    question: 'Dlaczego S3 jako data lake?',
-    answer: 'S3 daje tani, trwały storage niezależny od compute. Mogę przechowywać surowe dane w oryginalnym formacie, robić reprocess bez ponownego pobierania API i łatwo skalować wolumen danych bez zmiany architektury.',
+    question: 'Jakie technologie używasz do ETL?',
+    answer: 'Python z Pandas do lekkich transformacji, dbt do SQL transformacji w hurtowni, Airflow do orkiestracji. Dla dużych wolumenów danych używam Spark. Wszystko hostowane na AWS (EMR, Glue, Lambda).',
+    note: '💡 Pokaż, że potrafisz dobrać narzędzia do skali problemu.',
   },
   {
     id: 3,
     category: 'ARCHITEKTURA & DATA PLATFORM',
-    question: 'ETL czy ELT – co stosowałeś i dlaczego?',
-    answer: 'Stosuję głównie ELT. Minimalna transformacja przed zapisaniem danych do storage, a ciężkie transformacje wykonuję już w hurtowni przy użyciu dbt. To upraszcza pipeline\'y, poprawia skalowalność i ułatwia debugowanie.',
+    question: 'Opisz flow danych w Twojej platformie',
+    answer: 'Dane → API/Lambda → S3 (raw) → Glue/Athena (staging) → Redshift (production) → BI tools. Każda warstwa ma swoje przeznaczenie: raw do backupu, staging do eksperymentów, prod do raportów.',
+    note: '💡 Opisz dlaczego każda warstwa jest potrzebna.',
   },
   {
     id: 4,
     category: 'ARCHITEKTURA & DATA PLATFORM',
-    question: 'Jak skalowałbyś tę architekturę przy 10× większej ilości danych?',
-    answer: 'Przede wszystkim partycjonowanie danych w S3 i w hurtowni, modele incremental w dbt, równoległe taski w Airflow oraz ewentualne przejście na Redshift/Snowflake. Dodatkowo ograniczenie pełnych reloadów i optymalizacja zapytań.',
+    question: 'Jak dbasz o jakość danych?',
+    answer: 'Testy w dbt (unique, not_null), monitoring w Airflow, alerty na anomalie, regularne audyty. Dbam o to, żeby błędy były wykrywane jak najwcześniej w pipeline.',
+    note: '💡 Jakości danych nie da się dodać na końcu - trzeba projektować od początku.',
   },
   {
     id: 5,
-    category: 'AIRFLOW & PIPELINE\'Y',
-    question: 'Dlaczego Airflow, a nie cron?',
-    answer: 'Airflow daje kontrolę nad zależnościami, retry, backfill, monitoring i wizualizację pipeline\'ów. Przy kilku źródłach danych i zależnościach między zadaniami cron szybko przestaje być wystarczający.',
+    category: 'ETL & PIPELINE\'Y',
+    question: 'Jak obsłużysz duplikaty w danych streamingowych?',
+    answer: 'Używam deduplikacji przez watermarking (event-time) lub przez idempotent writes. W Kafka utrzymuję offsety, w S3 używam partycjonowania z timestamp. Kluczowe jest zaprojektowanie kluczy biznesowych.',
+    note: '💡 Pokaż zrozumienie exactly-once semantics.',
   },
   {
     id: 6,
-    category: 'AIRFLOW & PIPELINE\'Y',
-    question: 'Jak wygląda Twój typowy DAG?',
-    answer: 'Extract z API → zapis do S3 → walidacja → load do warehouse → transformacje dbt → testy jakości. Każdy etap jest osobnym taskiem z retry i sensownymi timeoutami.',
+    category: 'ETL & PIPELINE\'Y',
+    question: 'Opisz sytuację, kiedy pipeline się zepsuł',
+    answer: 'Pipeline przestał działać przez zmianę schematu API. Nie miał testów na zmiany schematu. Dodałem kontrakt testy (schema validation) i monitoring na zmiany. Od tego czasu pipeline jest odporny na takie zmiany.',
+    note: '💡 Opowiadaj o konkretnych problemach i rozwiązaniach.',
   },
   {
     id: 7,
-    category: 'AIRFLOW & PIPELINE\'Y',
-    question: 'Jak radzisz sobie z błędami w pipeline\'ach?',
-    answer: 'Taski są idempotentne, mam retry z backoffem, logi trafiają do CloudWatch, a krytyczne błędy wysyłają alerty. Dodatkowo pipeline\'y są zaprojektowane tak, żeby dało się zrobić częściowy re-run lub backfill.',
+    category: 'ETL & PIPELINE\'Y',
+    question: 'Jakie masz strategie backfillowania danych?',
+    answer: 'Dla małych wolumenów: rerun całego DAG z nową datą. Dla dużych: incremental backfill z oknami czasowymi, paralelizacja po partycjach. Zawsze testuję na próbce danych najpierw.',
+    note: '💡 Backfill to częsta operacja w data engineering.',
   },
   {
     id: 8,
-    category: 'DATA QUALITY & OBSERVABILITY',
-    question: 'Jak dbasz o jakość danych?',
-    answer: 'Korzystam z testów dbt – not null, unique, accepted values oraz freshness checks. Testy są częścią pipeline\'u i ich fail blokuje dalsze etapy.',
+    category: 'BAZY DANYCH & SQL',
+    question: 'Jak zoptymalizujesz wolne zapytanie?',
+    answer: 'Sprawdzam execution plan, dodaję indeksy, repartycjonuję tabele, używam odpowiednich formatów (Parquet/ORC). Jeśli to distributed system - sprawdzam data skew i salting.',
+    note: '💡 Pokaż systematyczne podejście do optymalizacji.',
   },
   {
     id: 9,
-    category: 'DATA QUALITY & OBSERVABILITY',
-    question: 'Jak wykrywasz problemy z danymi?',
-    answer: 'Monitoruję zarówno techniczne błędy pipeline\'ów, jak i metryki jakości danych – brak danych, nagłe spadki wolumenu, opóźnienia. Alerty pozwalają reagować zanim problem trafi do użytkownika biznesowego.',
+    category: 'BAZY DANYCH & SQL',
+    question: 'Kiedy użyjesz indeks, a kiedy partycjonowanie?',
+    answer: 'Indeks dla selektywnych zapytań (gdzie < 5% danych). Partycjonowanie dla dużych tabel i zapytań zakresowych (data filters). Indeks przyspiesza lookups, partycjonowanie zmniejsza I/O.',
+    note: '💡 Zrozumienie trade-offów między indeksami a partycjonowaniem.',
   },
   {
     id: 10,
-    category: 'DATA QUALITY & OBSERVABILITY',
-    question: 'Czym różni się monitoring pipeline\'u od data quality?',
-    answer: 'Monitoring pipeline\'u mówi mi, czy proces się wykonał. Data quality mówi mi, czy dane mają sens. Oba są potrzebne, bo pipeline może się wykonać poprawnie, a dane nadal mogą być błędne.',
+    category: 'BAZY DANYCH & SQL',
+    question: 'Jak obsłużysz slowly changing dimensions?',
+    answer: 'Type 1 dla błędów (overwrite), Type 2 dla historii (nowy rekord z datami ważności). Implementuję przez merge statements lub SCD transformation w dbt.',
+    note: '💡 SCD to klasyka data warehousing.',
   },
   {
     id: 11,
-    category: 'DBT & TRANSFORMACJE',
-    question: 'Dlaczego dbt?',
-    answer: 'dbt pozwala traktować transformacje jak kod: wersjonowanie, testy, dokumentację i czytelną strukturę modeli. Ułatwia współpracę i utrzymanie hurtowni danych.',
+    category: 'PYTHON & PROGRAMOWANIE',
+    question: 'Jakie są Twoje ulubione biblioteki Python do data engineering?',
+    answer: 'Pandas do małych transformacji, PySpark do dużych danych, SQLAlchemy do baz danych, Pydantic do walidacji schematów. Do testów: pytest z fixtures.',
+    note: '💡 Pokaż, że masz doświadczenie z różnymi narzędziami.',
   },
   {
     id: 12,
-    category: 'DBT & TRANSFORMACJE',
-    question: 'Jak organizujesz modele dbt?',
-    answer: 'Dzielę je na warstwy: staging – minimalne czyszczenie, marts – modele biznesowe. Dzięki temu zmiany źródeł nie rozbijają całej warstwy analitycznej.',
+    category: 'PYTHON & PROGRAMOWANIE',
+    question: 'Jak debugujesz problemy z pamięcią w Pythonie?',
+    answer: 'Używam memory_profiler, tracemalloc do znalezienia leaków, sprawdzam czy obiekty są prawidłowo usuwane. Dla dużych danych używam chunking lub dask zamiast pandas.',
+    note: '💡 Pamięć to częsty bottleneck w data processing.',
   },
   {
     id: 13,
-    category: 'DBT & TRANSFORMACJE',
-    question: 'Czym są modele incremental i kiedy je stosujesz?',
-    answer: 'Modele incremental przetwarzają tylko nowe lub zmienione dane. Stosuję je przy dużych tabelach, gdzie pełny rebuild byłby kosztowny i czasochłonny.',
+    category: 'PYTHON & PROGRAMOWANIE',
+    question: 'Jak robisz code review dla kodu data engineering?',
+    answer: 'Sprawdzam: testy (czy edge cases są pokryte), error handling (czy błędy są logowane), performance (czy nie ma N+1 queries), security (czy wrażliwe dane są chronione).',
+    note: '💡 Code review to część codziennej pracy.',
   },
   {
     id: 14,
-    category: 'AWS & OPS',
-    question: 'Jakie usługi AWS wykorzystujesz najczęściej?',
-    answer: 'S3 jako data lake, EC2 pod Airflow, RDS/Redshift jako warehouse, IAM do zarządzania dostępami i CloudWatch do logów i monitoringu.',
+    category: 'AWS & CLOUD',
+    question: 'Jak dobierasz między EC2, Lambda, Glue?',
+    answer: 'Lambda dla event-driven i małych zadań (do 15min). Glue dla ETL na danych w S3. EC2 dla długotrwałych procesów lub kiedy potrzebuję pełną kontrolę nad środowiskiem.',
+    note: '💡 Pokaż zrozumienie cost-performance trade-offów.',
   },
   {
     id: 15,
-    category: 'AWS & OPS',
-    question: 'Jak dbasz o bezpieczeństwo danych?',
-    answer: 'Stosuję IAM roles zamiast kluczy w kodzie, secrets trzymam w Secrets Managerze, ograniczam dostęp zgodnie z zasadą least privilege.',
+    category: 'AWS & CLOUD',
+    question: 'Jak monitorujesz koszty AWS?',
+    answer: 'Używam Cost Explorer, ustawiam billing alerts, taguję zasoby, używam reserved instances dla przewidywalnego workload. Regularnie przeglądam unused resources.',
+    note: '💡 Koszty to ważna część odpowiedzialności data engineer.',
   },
   {
     id: 16,
-    category: 'AWS & OPS',
-    question: 'Jak kontrolujesz koszty?',
-    answer: 'Monitoruję usage usług, unikam pełnych reloadów danych, stosuję incremental processing i automatyczne wyłączanie nieużywanych zasobów.',
+    category: 'AWS & CLOUD',
+    question: 'Jak zapewniasz bezpieczeństwo danych w chmurze?',
+    answer: 'Encryption at rest (KMS) i in transit (TLS), least privilege IAM, VPC isolation, regular audits. Dla wrażliwych danych używam additional encryption layers.',
+    note: '💡 Security by design - nie dodatek.',
   },
   {
     id: 17,
-    category: 'CI/CD & AUTOMATYZACJA',
-    question: 'Jak wygląda CI/CD dla pipeline\'ów danych?',
-    answer: 'Każdy push uruchamia lint, testy oraz dbt test. Dzięki temu błędy jakości danych są wykrywane przed wdrożeniem na produkcję.',
+    category: 'AIRFLOW & ORKIESTRACJA',
+    question: 'Jakie są wady Airflow?',
+    answer: 'Nie skaluje dobrze z tysiącami DAGów (scheduler bottleneck), ciężki do development (Python + SQL), brak natywnego support dla streaming. Dla dużych organizacji lepszy coś jak Prefect czy Dagster.',
+    note: '💡 Pokaż krytyczne myślenie o narzędziach.',
   },
   {
     id: 18,
-    category: 'CI/CD & AUTOMATYZACJA',
-    question: 'Dlaczego testy są ważne w data engineeringu?',
-    answer: 'Bo błędy danych są trudniejsze do wykrycia niż błędy aplikacji. Testy dają szybki feedback i chronią użytkowników biznesowych.',
+    category: 'AIRFLOW & ORKIESTRACJA',
+    question: 'Jak organizujesz DAGi w większym projekcie?',
+    answer: 'Grupuję po domenach biznesowych (customers, products, finance), używam subDAGs dla powtarzalnych patternów, standaryzuję nazewnictwo i strukturę. Dbam o dependencies między DAGami.',
+    note: '💡 Organizacje to klucz do maintainability.',
   },
   {
     id: 19,
+    category: 'AIRFLOW & ORKIESTRACJA',
+    question: 'Jak testujesz DAGi?',
+    answer: 'Unit testy dla Python functions, integration testy dla całego DAG (test DAG), mocki dla external dependencies. Używam pytest z Airflow testing utilities.',
+    note: '💡 Testowanie orkiestracji to podstawa reliability.',
+  },
+  {
+    id: 20,
     category: 'WSPÓŁPRACA & KOMUNIKACJA',
     question: 'Jak tłumaczysz wymagania biznesowe na rozwiązania techniczne?',
     answer: 'Zaczynam od zrozumienia, jaka decyzja ma być podjęta na podstawie danych. Dopiero potem projektuję model danych i pipeline\'y, które dostarczą potrzebne informacje.',
   },
   {
-    id: 20,
+    id: 21,
     category: 'WSPÓŁPRACA & KOMUNIKACJA',
-    question: 'Jak radzisz sobie z niejasnymi wymaganiami?',
-    answer: 'Prototypuję rozwiązanie, pokazuję pierwsze wyniki i iteruję wspólnie z interesariuszami. Lepiej szybko coś zweryfikować niż budować w próżni.',
+    question: 'Jak pracujesz z analitykami danych?',
+    answer: 'Pomagam im zrozumieć możliwości i ograniczenia platformy, recenzuję ich SQL, doradzam w optymalizacji zapytań. Uczę ich self-service przez dbt.',
+    note: '💡 Data engineer to facilitator dla data analystów.',
   },
+  {
+    id: 22,
+    category: 'WSPÓŁPRACA & KOMUNIKACJA',
+    question: 'Jak przekazujesz wiedzę w zespole?',
+    answer: 'Prowadzę tech talks, piszę dokumentację (README, runbooks), robię code reviews, mentoruję juniorów. Dbam o to, żeby wiedza była rozproszona.',
+    note: '💡 Knowledge sharing zapobiega bottleneckom.',
+  },
+  {
+    id: 23,
+    category: 'PROJEKTY & DOŚWIADCZENIE',
+    question: 'Jaki był Twój największy sukces w data engineering?',
+    answer: 'Zoptymalizowałem pipeline, który działał 8 godzin - skróciłem do 2 godzin przez zmianę architektury (S3 + Athena zamiast Redshift) i lepsze partycjonowanie. To zaoszczędziło firmie $50k rocznie.',
+    note: '💡 Mierzalne wyniki robią wrażenie.',
+  },
+  {
+    id: 24,
+    category: 'PROJEKTY & DOŚWIADCZENIE',
+    question: 'Jakie wyzwania napotkałeś przy migracji do chmury?',
+    answer: 'Największe to latency między regions i koszty transferu danych. Rozwiązałem przez multi-region architecture i data compression. Uczymy się na błędach.',
+    note: '💡 Migracje to okazja do nauki.',
+  },
+  {
+    id: 25,
+    category: 'PROJEKTY & DOŚWIADCZENIE',
+    question: 'Jak dobierasz technologie do projektu?',
+    answer: 'Patrzę na skalę danych, budget, team skills, timeline. Dla MVP - najprostsze rozwiązanie. Dla production - niezawodność i maintainability przede wszystkim.',
+    note: '💡 Technology choice to business decision.',
+  },
+  {
+    id: 26,
+    category: 'ZARZĄDZANIE & LEADERSHIP',
+    question: 'Jak budujesz zaufanie do danych w organizacji?',
+    answer: 'Regularne audyty jakości, transparentne metryki (data quality score), szybkie reakcje na problemy, edukacja użytkowników. Dane muszą być predictable.',
+    note: '💡 Trust to podstawa data-driven culture.',
+  },
+  {
+    id: 27,
+    category: 'ZARZĄDZANIE & LEADERSHIP',
+    question: 'Jak planujesz capacity dla data platform?',
+    answer: 'Monitoruję usage trends, planuję headroom (20-30%), automatycznie skaluję zasoby, mam disaster recovery plans. Capacity planning to continuous process.',
+    note: '💡 Prevention is better than cure.',
+  },
+  {
+    id: 28,
+    category: 'ZARZĄDZANIE & LEADERSHIP',
+    question: 'Jak radzisz sobie ze zmianami wymagań w trakcie projektu?',
+    answer: 'Używam agile podejścia, regularne demo, early feedback. Jeśli zmiana duża - renegocjuję scope. Ważne jest zarządzanie oczekiwaniami stakeholderów.',
+    note: '💡 Zmiany to norma, nie wyjątek.',
+  }
 ];
 
 export interface ConceptCategory {
@@ -2653,211 +2828,8 @@ export interface ConceptCategory {
 export const dataEngineerConcepts: ConceptCategory[] = [
   {
     id: 'architecture',
-    name: 'ARCHITEKTURA DANYCH',
+    name: 'ARCHITEKTURA & PROCESY',
     icon: '🏗️',
-    concepts: [
-      { term: 'Data Lake', description: 'Tanie, skalowalne miejsce (np. S3) na surowe dane w różnych formatach.' },
-      { term: 'Data Warehouse', description: 'Hurtownia zoptymalizowana pod zapytania analityczne (Redshift, Snowflake).' },
-      { term: 'ETL', description: 'Extract → Transform → Load (transformacja przed zapisem).' },
-      { term: 'ELT', description: 'Extract → Load → Transform (transformacja w warehouse; standard dziś).' },
-      { term: 'Staging Layer', description: 'Warstwa czyszcząca dane minimalnie, bez logiki biznesowej.' },
-      { term: 'Data Mart', description: 'Modele pod konkretne potrzeby biznesowe (raporty, dashboardy).' },
-      { term: 'Schema Evolution', description: 'Zmiany struktury danych bez psucia pipeline\'ów.' },
-    ],
-  },
-  {
-    id: 'pipeline',
-    name: 'PIPELINE & ORCHESTRATION',
-    icon: '🔁',
-    concepts: [
-      { term: 'Airflow DAG', description: 'Graf zadań z zależnościami i harmonogramem.' },
-      { term: 'Idempotency', description: 'Task może zostać uruchomiony kilka razy bez skutków ubocznych.' },
-      { term: 'Backfill', description: 'Uzupełnianie danych historycznych.' },
-      { term: 'Retry Policy', description: 'Automatyczne ponowne próby przy błędach.' },
-      { term: 'Scheduling', description: 'Kiedy i jak często pipeline się uruchamia.' },
-      { term: 'Task Dependency', description: 'Zależność zadań (to → potem tamto).' },
-    ],
-  },
-  {
-    id: 'quality',
-    name: 'DATA QUALITY & OBSERVABILITY',
-    icon: '🧪',
-    concepts: [
-      { term: 'Data Quality', description: 'Czy dane są kompletne, poprawne i aktualne.' },
-      { term: 'Freshness Check', description: 'Sprawdzenie, czy dane są „świeże".' },
-      { term: 'Schema Validation', description: 'Czy struktura danych się zgadza.' },
-      { term: 'Anomaly Detection', description: 'Wykrywanie nagłych zmian (np. spadek wolumenu).' },
-      { term: 'Logging', description: 'Zapisywanie informacji o przebiegu pipeline\'u.' },
-      { term: 'Alerting', description: 'Powiadomienia o błędach (Slack, email).' },
-    ],
-  },
-  {
-    id: 'dbt',
-    name: 'DBT & TRANSFORMACJE',
-    icon: '🧱',
-    concepts: [
-      { term: 'dbt Model', description: 'SQL jako kod do transformacji danych.' },
-      { term: 'dbt Source', description: 'Definicja źródła danych (raw tables).' },
-      { term: 'dbt Test', description: 'Automatyczna walidacja danych (not null, unique).' },
-      { term: 'Incremental Model', description: 'Przetwarza tylko nowe dane.' },
-      { term: 'Materialization', description: 'Jak dbt zapisuje dane (view, table, incremental).' },
-      { term: 'Lineage', description: 'Ścieżka: skąd dane przyszły i dokąd idą.' },
-    ],
-  },
-  {
-    id: 'aws',
-    name: 'AWS & CLOUD',
-    icon: '☁️',
-    concepts: [
-      { term: 'S3', description: 'Object storage – podstawa data lake.' },
-      { term: 'EC2', description: 'Maszyny wirtualne (Airflow, custom ETL).' },
-      { term: 'IAM', description: 'Zarządzanie dostępami i rolami.' },
-      { term: 'Least Privilege', description: 'Minimalny niezbędny dostęp.' },
-      { term: 'CloudWatch', description: 'Logi, metryki, alerty w AWS.' },
-      { term: 'RDS', description: 'Relacyjna baza danych jako usługa.' },
-      { term: 'Redshift', description: 'Warehouse zoptymalizowany pod analitykę.' },
-    ],
-  },
-  {
-    id: 'api',
-    name: 'API & INTEGRACJE',
-    icon: '🔌',
-    concepts: [
-      { term: 'REST API', description: 'Najczęstszy sposób pobierania danych.' },
-      { term: 'Pagination', description: 'Pobieranie danych partiami.' },
-      { term: 'Rate Limiting', description: 'Limit zapytań do API.' },
-      { term: 'Authentication', description: 'OAuth, tokeny – dostęp do API.' },
-      { term: 'Webhook', description: 'Push danych zamiast pull.' },
-    ],
-  },
-  {
-    id: 'cicd',
-    name: 'CI/CD & OPS',
-    icon: '🔄',
-    concepts: [
-      { term: 'CI/CD', description: 'Automatyczne testy i deploy pipeline\'ów.' },
-      { term: 'Version Control', description: 'Git jako podstawa pracy zespołowej.' },
-      { term: 'Environment Separation', description: 'Dev / staging / prod.' },
-      { term: 'Secrets Management', description: 'Bezpieczne przechowywanie haseł.' },
-      { term: 'Rollback', description: 'Cofnięcie wdrożenia po błędzie.' },
-    ],
-  },
-  {
-    id: 'performance',
-    name: 'PERFORMANCE & COST',
-    icon: '📈',
-    concepts: [
-      { term: 'Partitioning', description: 'Podział danych (np. po dacie) dla wydajności.' },
-      { term: 'Indexing', description: 'Przyspieszanie zapytań.' },
-      { term: 'Query Optimization', description: 'Pisanie wydajnego SQL.' },
-      { term: 'Cost Optimization', description: 'Kontrola kosztów chmury.' },
-    ],
-  },
-  {
-    id: 'collaboration',
-    name: 'WSPÓŁPRACA',
-    icon: '🧑‍🤝‍🧑',
-    concepts: [
-      { term: 'Business Logic', description: 'Zasady wynikające z potrzeb biznesu.' },
-      { term: 'Data Contract', description: 'Umowa dot. struktury danych między zespołami.' },
-      { term: 'Documentation', description: 'Opis architektury, decyzji, modeli.' },
-      { term: 'Ownership', description: 'Odpowiedzialność za dane end-to-end.' },
-    ],
-  },
-  {
-    id: 'modeling',
-    name: 'MODELOWANIE DANYCH',
-    icon: '📊',
-    concepts: [
-      { term: 'Star Schema', description: 'Model faktów i wymiarów – standard w analityce.' },
-      { term: 'Fact Table', description: 'Tabela z miarami (np. sprzedaż, użycie).' },
-      { term: 'Dimension Table', description: 'Kontekst dla faktów (czas, klient, produkt).' },
-      { term: 'Slowly Changing Dimensions (SCD)', description: 'Obsługa zmian danych historycznych.' },
-      { term: 'Surrogate Key', description: 'Sztuczny klucz zamiast naturalnego.' },
-      { term: 'Grain', description: 'Najniższy poziom szczegółowości danych.' },
-      { term: 'Denormalization', description: 'Celowe duplikowanie danych dla wydajności.' },
-    ],
-  },
-  {
-    id: 'processing',
-    name: 'PRZETWARZANIE DANYCH',
-    icon: '🔄',
-    concepts: [
-      { term: 'Batch Processing', description: 'Przetwarzanie danych w paczkach.' },
-      { term: 'Streaming', description: 'Przetwarzanie danych w czasie rzeczywistym.' },
-      { term: 'Micro-batching', description: 'Małe paczki danych „quasi real-time".' },
-      { term: 'Late-arriving Data', description: 'Dane przychodzące z opóźnieniem.' },
-      { term: 'Deduplication', description: 'Usuwanie duplikatów.' },
-      { term: 'Watermarking', description: 'Kontrola opóźnień w strumieniach danych.' },
-    ],
-  },
-  {
-    id: 'spark',
-    name: 'SPARK / DISTRIBUTED SYSTEMS',
-    icon: '🧱',
-    concepts: [
-      { term: 'Apache Spark', description: 'Silnik do przetwarzania rozproszonego.' },
-      { term: 'Executor / Driver', description: 'Procesy wykonujące i sterujące jobem Spark.' },
-      { term: 'Partition', description: 'Fragment danych przetwarzany równolegle.' },
-      { term: 'Shuffle', description: 'Przenoszenie danych między węzłami (drogi).' },
-      { term: 'Lazy Evaluation', description: 'Spark wykonuje operacje dopiero przy akcji.' },
-      { term: 'Wide vs Narrow Transformations', description: 'Czy wymaga shuffle czy nie.' },
-    ],
-  },
-  {
-    id: 'testing',
-    name: 'TESTOWANIE & JAKOŚĆ',
-    icon: '🧪',
-    concepts: [
-      { term: 'Great Expectations', description: 'Framework do testów jakości danych.' },
-      { term: 'Schema Drift', description: 'Niezapowiedziana zmiana schematu.' },
-      { term: 'Null Explosion', description: 'Nagły wzrost NULLi.' },
-      { term: 'Volume Check', description: 'Kontrola liczby rekordów.' },
-      { term: 'Reconciliation', description: 'Porównanie danych między systemami.' },
-      { term: 'Data Profiling', description: 'Analiza struktury i jakości danych.' },
-    ],
-  },
-  {
-    id: 'infra',
-    name: 'CLOUD & INFRA',
-    icon: '☁️',
-    concepts: [
-      { term: 'Infrastructure as Code (IaC)', description: 'Terraform / CloudFormation – infra w kodzie.' },
-      { term: 'Auto Scaling', description: 'Automatyczne skalowanie zasobów.' },
-      { term: 'High Availability', description: 'Brak single point of failure.' },
-      { term: 'Fault Tolerance', description: 'System działa mimo awarii.' },
-      { term: 'Cold vs Hot Storage', description: 'Różne klasy przechowywania danych.' },
-      { term: 'Region / AZ', description: 'Lokalizacja zasobów w chmurze.' },
-    ],
-  },
-  {
-    id: 'security',
-    name: 'BEZPIECZEŃSTWO & COMPLIANCE',
-    icon: '🔐',
-    concepts: [
-      { term: 'Encryption at Rest', description: 'Szyfrowanie zapisanych danych.' },
-      { term: 'Encryption in Transit', description: 'Szyfrowanie danych w ruchu.' },
-      { term: 'PII', description: 'Dane osobowe wymagające ochrony.' },
-      { term: 'GDPR / RODO', description: 'Regulacje dot. danych osobowych.' },
-      { term: 'Data Masking', description: 'Ukrywanie wrażliwych danych.' },
-    ],
-  },
-  {
-    id: 'operations',
-    name: 'CI/CD & OPERATIONS',
-    icon: '🔄',
-    concepts: [
-      { term: 'Blue-Green Deployment', description: 'Deploy bez downtime\'u.' },
-      { term: 'Canary Release', description: 'Wdrożenie dla części danych.' },
-      { term: 'Feature Flag', description: 'Włączanie/wyłączanie funkcji.' },
-      { term: 'Schema Migration', description: 'Kontrolowane zmiany struktury.' },
-      { term: 'Rollback Strategy', description: 'Plan cofnięcia zmian.' },
-    ],
-  },
-  {
-    id: 'bi',
-    name: 'BI & ANALITYKA',
-    icon: '📊',
     concepts: [
       { term: 'Semantic Layer', description: 'Warstwa pojęć biznesowych.' },
       { term: 'Self-service BI', description: 'Analitycy bez pomocy IT.' },
@@ -2878,4 +2850,3 @@ export const dataEngineerConcepts: ConceptCategory[] = [
     ],
   },
 ];
-

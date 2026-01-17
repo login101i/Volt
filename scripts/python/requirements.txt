@@ -9,3 +9,15 @@ python-dotenv>=1.0.0
 
 # AWS SDK dla Python - Data Lake S3 Operations - Week 3
 boto3>=1.34.0
+
+# Pandas dla operacji na danych - Week 4/5
+pandas>=2.0.0
+
+# PyArrow dla formatu Parquet - Week 5
+pyarrow>=14.0.0
+
+# Apache Airflow dla pipeline'ów - Week 5 (opcjonalne dla lokalnego development)
+apache-airflow>=2.8.0
+
+# Tenacity dla retry logic - Week 5
+tenacity>=8.2.0

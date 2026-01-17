@@ -1,0 +1,7 @@
+# Tydzień 4: Python + S3 Podstawy - dodatkowe zależności
+
+# Pandas dla operacji na danych CSV/JSON
+pandas>=2.0.0
+
+# Python-dotenv już zainstalowany w głównym requirements.txt
+# python-dotenv>=1.0.0

@@ -1,7 +1,11 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const sharp = require('sharp');
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import sharp from 'sharp';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -164,7 +168,7 @@ const uploadComponentImage = (req, res) => {
   });
 };
 
-module.exports = {
+export default {
   uploadComponentImage,
   upload
 };

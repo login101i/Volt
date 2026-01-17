@@ -1,7 +1,11 @@
 // Orders controller functions - returns offers as orders
 
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const offersFile = path.join(__dirname, '../data/offers.json');
 
@@ -78,7 +82,7 @@ const getOrderById = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getOrders,
   getOrderById
 };
