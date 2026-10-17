@@ -1042,7 +1042,7 @@ export default function ProtocolOdbioruPage() {
                     </div>
                   </div>
                   <div className="bg-yellow-100 p-3 rounded border-l-4 border-yellow-500">
-                    <p className="text-sm">👉 To jest: "podpis artysty pod obrazem" – zabezpieczenie klienta i wykonawcy</p>
+                    <p className="text-sm">👉 To jest: &quot;podpis artysty pod obrazem&quot; – zabezpieczenie klienta i wykonawcy</p>
                   </div>
                 </div>
               </section>
@@ -1079,7 +1079,7 @@ export default function ProtocolOdbioruPage() {
                     </div>
                   ))}
                   <div className="bg-red-50 p-3 rounded border-l-4 border-red-400 mt-3">
-                    <p className="text-sm font-semibold">⚠️ Bez tego: "było fajnie" → po tygodniu → "jednak nie"</p>
+                    <p className="text-sm font-semibold">⚠️ Bez tego: &quot;było fajnie&quot; → po tygodniu → &quot;jednak nie&quot;</p>
                   </div>
                 </div>
               </section>
@@ -1116,7 +1116,7 @@ export default function ProtocolOdbioruPage() {
                     </div>
                   ))}
                   <div className="bg-yellow-50 p-2 rounded mt-2">
-                    <p className="text-sm">🙃 Nie "długopis + taśma"</p>
+                    <p className="text-sm">🙃 Nie &quot;długopis + taśma&quot;</p>
                   </div>
                 </div>
               </section>
@@ -1157,7 +1157,7 @@ export default function ProtocolOdbioruPage() {
                     <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
                       <li>Klienci często mówią, że nie potrzebują</li>
                       <li>Ubezpieczyciel ZAWSZE potrzebuje</li>
-                      <li>"Data wsteczna" = 🚨 nielegalne i ryzykowne</li>
+                      <li>&quot;Data wsteczna&quot; = 🚨 nielegalne i ryzykowne</li>
                     </ul>
                     <p className="text-sm mt-2 font-semibold">👉 Dobra praktyka: pomiary robione + protokół przekazany klientowi</p>
                   </div>
@@ -1195,7 +1195,7 @@ export default function ProtocolOdbioruPage() {
                       </div>
                     </div>
                   ))}
-                  <p className="text-sm text-gray-600 mt-2">Często pomijany "ukryty koszt".</p>
+                  <p className="text-sm text-gray-600 mt-2">Często pomijany &quot;ukryty koszt&quot;.</p>
                 </div>
               </section>
 
@@ -1236,7 +1236,7 @@ export default function ProtocolOdbioruPage() {
 
               {/* Bonus: Dodatkowe elementy */}
               <section className="bg-green-50 p-6 rounded-lg shadow-md border-2 border-green-400">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">🧠 CO DODAŁBYM Z "WIEDZY Z INTERNETU / DOBREJ PRAKTYKI"</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">🧠 CO DODAŁBYM Z &quot;WIEDZY Z INTERNETU / DOBREJ PRAKTYKI&quot;</h3>
                 <div className="space-y-4">
                   <div>
                     <p className="font-semibold mb-2">🔹 Dokumentacja powykonawcza (choćby uproszczona):</p>

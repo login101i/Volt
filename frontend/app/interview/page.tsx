@@ -880,7 +880,7 @@ const InterviewPractice = () => {
           <div className="mt-2"><b>Kursy:</b></div>
           <ul className="ml-5 list-decimal text-sm">
             <li>Udemy – AWS Certified Data Engineer Associate (Maarek/Kane) <b>MUST HAVE!</b></li>
-            <li>Coursera – Data Engineering on AWS (świetne laby, prawdziwe pipeline'y)</li>
+            <li>Coursera – Data Engineering on AWS (świetne laby, prawdziwe pipeline&apos;y)</li>
             <li>Udemy practice exams</li>
           </ul>
           <div className="mt-2"><b>Projekty do samodzielnego zrobienia (minimum 2):</b></div>
