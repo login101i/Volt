@@ -17,15 +17,16 @@ Volt używa osobnego katalogu `/opt/volt`, osobnego Compose project `volt` i por
 3. Utwórz trwały katalog danych: `sudo mkdir -p /opt/volt-data && sudo chown maciej:maciej /opt/volt-data` (jeśli deploy wykonuje inny użytkownik, ustaw jego właściciela).
 4. Skopiuj `server/data/electricalComponents.js` z lokalnego projektu do `/opt/volt-data/electricalComponents.js`. Backend importuje ten plik przy starcie, a `server/data` jest pomijany przez Git. Oferty w `offers.json` są danymi klientów: nie kopiuj ich na serwer bez świadomej decyzji; jeśli nie zostaną skopiowane, Volt utworzy pustą listę przy pierwszym użyciu.
 5. Utwórz `/opt/volt/server/.env` z `PORT=5000`, `HOST=0.0.0.0`, `NODE_ENV=production`, `FRONTEND_URL=https://elektrykpoznan.online`, `PRODUCTION_FRONTEND_URL=https://elektrykpoznan.online`, `MYSQL_HOST=s78.cyber-folks.pl`, `MYSQL_PORT=3308`, `MYSQL_DATABASE=lxsxnvawhg_volt`, `MYSQL_USER=lxsxnvawhg_volt`, `MYSQL_PASSWORD=...`. Hasło wpisz wyłącznie na VPS; plik nie może trafić do Git.
-6. W panelu Cyber Folks włącz zdalny MySQL i dodaj publiczny IPv4 VPS do allowlisty. Nie zmieniaj rekordów MX domeny.
-7. Zweryfikuj Compose bez uruchamiania kontenerów: `cd /opt/volt && docker compose -p volt -f docker-compose.volt.yml config --quiet`.
-8. Uruchom pierwszy build i kontenery ręcznie jako użytkownik deployu:
+6. Utwórz `/opt/volt/frontend/.env.production` na podstawie `frontend/.env.example` i uzupełnij dane S3 (`ACCESS_KEY`, `SECRET_KEY`, `REGION`, `BUCKET_NAME`), jeśli chcesz używać uploadu obrazków. Ustaw `chmod 600 /opt/volt/frontend/.env.production`; tego pliku nie commituj.
+7. W panelu Cyber Folks włącz zdalny MySQL i dodaj publiczny IPv4 istniejącego VPS do allowlisty. Nie zmieniaj rekordów MX domeny.
+8. Zweryfikuj Compose bez uruchamiania kontenerów: `cd /opt/volt && docker compose -p volt -f docker-compose.volt.yml config --quiet`.
+9. Uruchom pierwszy build i kontenery ręcznie jako użytkownik deployu:
    `docker compose -p volt -f docker-compose.volt.yml build`
    `docker compose -p volt -f docker-compose.volt.yml up -d`
-9. Sprawdź lokalnie na VPS: `curl -f http://127.0.0.1:5000/health` i `curl -I http://127.0.0.1:3100`.
-10. Dopiero gdy aplikacja przechodzi te testy, dodaj blok z `deploy/Caddyfile.volt.example` do istniejącego `/etc/caddy/Caddyfile`, zweryfikuj `sudo caddy validate --config /etc/caddy/Caddyfile`, a następnie `sudo systemctl reload caddy`.
-11. Skieruj rekordy A dla `@` i `www` na IPv4 VPS. Nie zmieniaj MX. Po propagacji sprawdź `https://elektrykpoznan.online`, `/health` i `/api/components`.
-12. Dodaj w GitHub Actions sekrety `VOLT_HOST`, `VOLT_USER`, `VOLT_SSH_KEY`. Workflow jest na razie ręczny (`workflow_dispatch`), żeby merge konfiguracji nie próbował deployu przed przygotowaniem VPS. Po udanym pierwszym wdrożeniu można dodać automatyczny trigger push na `main`.
+10. Sprawdź lokalnie na VPS: `curl -f http://127.0.0.1:5000/health` i `curl -I http://127.0.0.1:3100`.
+11. Dopiero gdy aplikacja przechodzi te testy, dodaj blok z `deploy/Caddyfile.volt.example` do istniejącego `/etc/caddy/Caddyfile`, zweryfikuj `sudo caddy validate --config /etc/caddy/Caddyfile`, a następnie `sudo systemctl reload caddy`.
+12. Skieruj rekordy A dla `@` i `www` na IPv4 istniejącego VPS. Nie zmieniaj MX. Po propagacji sprawdź `https://elektrykpoznan.online`, `/health` i `/api/components`.
+13. Dodaj w GitHub Actions sekrety `VOLT_HOST`, `VOLT_USER`, `VOLT_SSH_KEY`. Workflow jest na razie ręczny (`workflow_dispatch`), żeby merge konfiguracji nie próbował deployu przed przygotowaniem VPS. Po udanym pierwszym wdrożeniu można dodać automatyczny trigger push na `main`.
 
 ## Ważne
 

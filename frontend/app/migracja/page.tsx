@@ -78,9 +78,9 @@ export default function MigracjaPage() {
           <strong>Najpierw to.</strong>
           <span className="volt-muted">
             <code>docker-compose.yml</code> i <code>.github/workflows/deploy-hetzner.yml</code> w tym
-            repo opisują Opticut (<code>/opt/opticut</code>, port 8000, <code>/api/v1</code>). Nie
-            wdrożą elektrykpoznan.online. Dockerfile’i Volta jeszcze nie ma — to jest blokada, nie
-            kosmetyka.
+            repo opisują Opticut (<code>/opt/opticut</code>, port 8000, <code>/api/v1</code>). Dla Volta
+            używaj wyłącznie <code>docker-compose.volt.yml</code> i <code>deploy-volt.yml</code>, które
+            wdrażają do <code>/opt/volt</code> na osobnych portach.
           </span>
         </div>
 

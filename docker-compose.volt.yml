@@ -8,11 +8,14 @@ services:
         NEXT_PUBLIC_API_URL: https://elektrykpoznan.online
     ports:
       - "127.0.0.1:3100:3000"
+    env_file:
+      - ./frontend/.env.production
     depends_on:
       - volt-server
     environment:
       NODE_ENV: production
       PORT: 3000
+      NEXT_PUBLIC_API_URL: https://elektrykpoznan.online
 
   volt-server:
     restart: unless-stopped

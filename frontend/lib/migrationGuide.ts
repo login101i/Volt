@@ -30,12 +30,12 @@ export const MIGRATION_STEPS: MigrationStep[] = [
     title: 'Nie odpalaj plików Opticut',
     status: 'blocker',
     goal: 'Zrozumieć, że docker-compose.yml i workflow w tym repo nie wdrożą Volta.',
-    why: 'Te pliki zostały skopiowane z działającego Opticut. Wskazują /opt/opticut, port 8000, Redis, /api/v1 i health www.opticut.pl. Volt to inna aplikacja: Next na 3000, Express na 5000, API pod /api, health pod /health. W repo nie ma Dockerfile.frontend ani Dockerfile.server.',
-    without: 'Push na main uruchomiłby zły skrypt (albo padł), a na serwerze Opticut nadpisałby cudzy katalog. Domena elektrykpoznan.online dalej wskazywałaby hosting Cyber Folks.',
+    why: 'Główny docker-compose.yml i workflow deploy-hetzner.yml nadal należą do Opticut (/opt/opticut, port 8000, Redis, /api/v1). Volt ma teraz osobne Dockerfile, docker-compose.volt.yml i workflow, które używają /opt/volt, portów 3100/5000 i API /api.',
+    without: 'Użycie plików Opticut dla Volta mogłoby zrestartować lub nadpisać usługę Opticut. Wdrażaj Volt wyłącznie osobnym compose i workflow.',
     tasks: [
       { id: 'gap-compose', label: 'Traktuj docker-compose.yml jako wzorzec Opticut, nie jako plik Volta' },
       { id: 'gap-gha', label: 'Nie ustawiaj sekretów Hetzner pod obecny deploy-hetzner.yml' },
-      { id: 'gap-dockerfiles', label: 'Zaplanuj własne Dockerfile + compose + workflow (kroki 4 i 10)' },
+      { id: 'gap-dockerfiles', label: 'Używaj osobnych plików Volta: Dockerfile, docker-compose.volt.yml i deploy-volt.yml' },
     ],
     blocks: [
       {
@@ -57,20 +57,20 @@ domena    https://elektrykpoznan.online`,
   {
     id: 'vps',
     number: '1',
-    title: 'VPS — osobna maszyna',
+    title: 'VPS — ten sam serwer co Opticut',
     status: 'todo',
-    goal: 'Mieć serwer, na który wskazuje domena. Opticut zostaje nietknięty.',
-    why: 'Na Hetznerze Opticut już słucha 127.0.0.1:3000 i :8000 oraz ma własny Caddy i deploy. Druga aplikacja na tym samym porcie się nie zmieści. Osobny, mniejszy VPS (np. CX22: 2 vCPU, 4 GB RAM) kopiuje sprawdzony układ i nie wywraca opticut.pl przy przebudowie obrazów.',
-    without: 'Albo Volt nie wstanie (port zajęty), albo deploy jednej aplikacji zrestartuje drugą.',
+    goal: 'Uruchomić Volt na obecnym VPS w osobnym katalogu /opt/volt, bez naruszania Opticut.',
+    why: 'Opticut zajmuje 127.0.0.1:3000 i :8000. Volt używa osobnych portów 127.0.0.1:3100 i :5000, osobnego projektu Compose oraz osobnego katalogu danych.',
+    without: 'Pomylenie katalogów lub portów może przerwać działanie Opticut albo Volta.',
     tasks: [
       { id: 'vps-account', label: 'Konto Hetzner — to samo co przy Opticut' },
-      { id: 'vps-create', label: 'Nowy serwer, np. volt-prod-01, Ubuntu LTS, lokalizacja Niemcy' },
-      { id: 'vps-ip', label: 'Zapisz IPv4 — to będzie rekord A domeny' },
-      { id: 'vps-ssh', label: 'Wejście: ssh root@IP, potem użytkownik bez roota (jak maciej na Opticut)' },
+      { id: 'vps-create', label: 'Użyj istniejącego serwera Hetzner z Opticut — nie twórz nowego VPS' },
+      { id: 'vps-ip', label: 'Sprawdź IPv4 istniejącego VPS; na ten adres będzie wskazywać domena' },
+      { id: 'vps-ssh', label: 'Połącz się dotychczasowym użytkownikiem SSH, tak jak przy Opticut' },
     ],
     blocks: [
       {
-        title: 'Ten sam VPS co Opticut — tylko gdy świadomie zmienisz porty',
+        title: 'Porty na wspólnym VPS',
         code: `Opticut zostaje:  127.0.0.1:3000 i :8000
 Volt wtedy:       127.0.0.1:3100 (Next) i :5000 (Express)
 Caddy rozróżnia strony po nazwie hosta, nie po porcie publicznym.`,
@@ -83,13 +83,13 @@ Caddy rozróżnia strony po nazwie hosta, nie po porcie publicznym.`,
     title: 'Bezpieczeństwo serwera',
     status: 'todo',
     goal: 'Zamknąć serwer zanim wstawisz aplikację. Ten sam schemat co etap 2 Opticut.',
-    why: 'Świeży VPS ma otwartego roota i hasło z maila. Boty zgadują SSH w ciągu minut. Najpierw dom, potem meble.',
+    why: 'VPS już obsługuje Opticut. Sprawdź jego aktualne zabezpieczenia i nie zmieniaj reguł SSH/firewalla w sposób, który mógłby odciąć działającą aplikację.',
     without: 'Ktoś wejdzie na serwer, zanim postawisz Dockera.',
     tasks: [
-      { id: 'sec-user', label: 'Użytkownik z sudo, klucz SSH, wyłączone logowanie hasłem i rootem' },
-      { id: 'sec-ufw', label: 'UFW: zezwól 22, 80, 443. Porty 3000 i 5000 zostają tylko na 127.0.0.1' },
-      { id: 'sec-fw', label: 'Firewall w panelu Hetzner: to samo (22/80/443)' },
-      { id: 'sec-f2b', label: 'Fail2Ban na sshd + unattended-upgrades' },
+      { id: 'sec-user', label: 'Sprawdź istniejącego użytkownika deployu, dostęp kluczem SSH i brak logowania rootem/hasłem' },
+      { id: 'sec-ufw', label: 'Sprawdź UFW: 22, 80, 443; porty 3000, 8000, 3100 i 5000 tylko lokalnie' },
+      { id: 'sec-fw', label: 'Sprawdź firewall Hetzner: publicznie tylko 22/80/443' },
+      { id: 'sec-f2b', label: 'Sprawdź Fail2Ban dla sshd i unattended-upgrades' },
     ],
     blocks: [],
   },
@@ -119,10 +119,10 @@ git clone git@github.com:<twoje-repo>.git /opt/volt`,
     id: 'images',
     number: '4',
     title: 'Obrazy Docker pod Volt',
-    status: 'blocker',
-    goal: 'Napisać Dockerfile frontu, Dockerfile serwera i compose, które w ogóle budują tę aplikację.',
-    why: 'Compose w repo woła pliki, których nie ma, i podnosi Redis oraz port 8000. Volt nie używa Redisa. Oferty żyją w pliku JSON, katalog komponentów w MariaDB.',
-    without: 'docker compose build zakończy się błędem „Dockerfile not found” albo wstanie zła aplikacja.',
+    status: 'todo',
+    goal: 'Użyć przygotowanych obrazów i osobnego compose Volta, a następnie sprawdzić build na VPS.',
+    why: 'Pliki Volta są już dodane: frontend/Dockerfile, server/Dockerfile i docker-compose.volt.yml. Ręczny build na VPS pozostaje do wykonania.',
+    without: 'Bez sprawdzenia builda na serwerze nie wiadomo, czy aplikacja uruchomi się w docelowym środowisku.',
     tasks: [
       { id: 'img-fe', label: 'frontend/Dockerfile — Next standalone, ARG NEXT_PUBLIC_API_URL' },
       { id: 'img-be', label: 'server/Dockerfile — node, PORT 5000, health /health' },
@@ -131,9 +131,9 @@ git clone git@github.com:<twoje-repo>.git /opt/volt`,
     ],
     blocks: [
       {
-        title: 'Docelowe porty (osobny VPS)',
+        title: 'Docelowe porty (ten sam VPS co Opticut)',
         code: `frontend:
-  ports: ["127.0.0.1:3000:3000"]
+  ports: ["127.0.0.1:3100:3000"]
   build args:
     NEXT_PUBLIC_API_URL: https://elektrykpoznan.online
 server:
@@ -167,7 +167,7 @@ NODE_ENV=production
 FRONTEND_URL=https://elektrykpoznan.online
 PRODUCTION_FRONTEND_URL=https://elektrykpoznan.online
 MYSQL_HOST=s78.cyber-folks.pl
-MYSQL_PORT=3306
+MYSQL_PORT=3308
 MYSQL_DATABASE=lxsxnvawhg_volt
 MYSQL_USER=lxsxnvawhg_volt
 MYSQL_PASSWORD=...`,
@@ -183,8 +183,8 @@ MYSQL_PASSWORD=...`,
     why: 'Tabele już są (albo właśnie je zakładasz seedem). Strona może działać w internecie, zanim nauczysz się dump/restore. Oferty i tak nie siedzą w SQL — są w offers.json.',
     without: 'Kalkulacja nie zobaczy komponentów i bezpieczników. Reszta API ofert nadal działa na pliku.',
     tasks: [
-      { id: 'db-remote', label: 'W panelu Cyber Folks włącz zdalny MySQL i dopisz IP nowego VPS' },
-      { id: 'db-port', label: 'Z internetu port to ten z .env (3306). 3308 jest tylko gdy aplikacja stoi na samym hostingu CF' },
+      { id: 'db-remote', label: 'W panelu Cyber Folks włącz zdalny MySQL i dopisz IPv4 istniejącego VPS' },
+      { id: 'db-port', label: 'Ustaw MYSQL_PORT=3308, zgodnie z lokalnym .env.example i konfiguracją Cyber Folks' },
       { id: 'db-seed', label: 'Seed ze zdjęć: server/sql/seed_from_images.sql już puszczony w phpMyAdmin' },
       { id: 'db-later', label: 'Później: kontener MySQL na VPS + dump. Nie rób tego w dniu przełączenia domeny' },
     ],
@@ -271,14 +271,14 @@ MX    ...   zostaw jak jest`,
   {
     id: 'actions',
     number: '10',
-    title: 'GitHub Actions — push wdraża Volta',
+    title: 'GitHub Actions — ręczny deploy Volta',
     status: 'blocker',
-    goal: 'Nowy workflow: SSH, katalog /opt/volt, build, health Volta.',
+    goal: 'Ręcznie uruchomić workflow Volta po przygotowaniu serwera, kluczy i konfiguracji.',
     why: 'Obecny deploy-hetzner.yml po pushu na main robi git reset w /opt/opticut i sprawdza https://www.opticut.pl/api/v1/health. Sekrety HETZNER_HOST, HETZNER_USER, HETZNER_SSH_KEY mogą być te same tylko wtedy, gdy to ten sam serwer — skrypt i tak musi iść do /opt/volt.',
     without: 'Każdy push albo psuje Opticut, albo nic nie wdraża, i produkcja rozjeżdża się z gitem.',
     tasks: [
       { id: 'gha-file', label: 'Osobny workflow (nie doklejaj kroków Opticut: Redis, moduły, /api/v1)' },
-      { id: 'gha-secrets', label: 'Sekrety: host, user, klucz SSH nowego VPS' },
+      { id: 'gha-secrets', label: 'Sekrety VOLT_HOST, VOLT_USER, VOLT_SSH_KEY dla istniejącego VPS' },
       { id: 'gha-health', label: 'Smoke: curl 127.0.0.1:5000/health oraz https://elektrykpoznan.online' },
       { id: 'gha-manual', label: 'Zostaw workflow_dispatch, żeby wdrożyć bez pustego commita' },
     ],
