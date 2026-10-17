@@ -330,9 +330,9 @@ export default function NewOfferPage() {
       <div className="max-w-4xl mx-auto bg-white shadow-sm min-h-screen">
         {/* Header with Back Button */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 flex items-center">
+          <Link href="/app" className="text-gray-600 hover:text-gray-900 flex items-center">
             <span className="text-xl mr-2">←</span>
-            <span>Powrót</span>
+            <span>Powrót do panelu</span>
           </Link>
         </div>
 

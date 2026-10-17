@@ -1,0 +1,25 @@
+name: Deploy Volt to Hetzner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Volt on the VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VOLT_HOST }}
+          username: ${{ secrets.VOLT_USER }}
+          key: ${{ secrets.VOLT_SSH_KEY }}
+          script: |
+            set -eu
+            cd /opt/volt
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose -p volt -f docker-compose.volt.yml build
+            docker compose -p volt -f docker-compose.volt.yml up -d
+            curl --fail --silent --show-error http://127.0.0.1:5000/health
+            curl --fail --silent --show-error http://127.0.0.1:3100/ -o /dev/null
+            docker compose -p volt -f docker-compose.volt.yml ps

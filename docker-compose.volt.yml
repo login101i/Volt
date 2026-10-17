@@ -1,0 +1,34 @@
+services:
+  volt-frontend:
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://elektrykpoznan.online
+    ports:
+      - "127.0.0.1:3100:3000"
+    env_file:
+      - ./frontend/.env.production
+    depends_on:
+      - volt-server
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: https://elektrykpoznan.online
+
+  volt-server:
+    restart: unless-stopped
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      HOST: 0.0.0.0
+    volumes:
+      - /opt/volt-data:/app/data

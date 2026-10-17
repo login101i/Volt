@@ -1,0 +1,19 @@
+elektrykpoznan.online, www.elektrykpoznan.online {
+    encode gzip
+
+    handle /api/media* {
+        reverse_proxy 127.0.0.1:3100
+    }
+    handle /api/proxy* {
+        reverse_proxy 127.0.0.1:3100
+    }
+    handle /api/* {
+        reverse_proxy 127.0.0.1:5000
+    }
+    handle /health {
+        reverse_proxy 127.0.0.1:5000
+    }
+    handle {
+        reverse_proxy 127.0.0.1:3100
+    }
+}

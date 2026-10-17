@@ -1,133 +1,123 @@
 /**
- * Theme Configuration
- * Centralized colors and typography for consistent UI across the application
+ * Theme Configuration — aligned with GlobalStyleProvider / volt-theme.css
  */
 
 export const theme = {
   colors: {
-    // Primary color - Main actions, primary buttons
     primary: {
-      50: '#eff6ff',
-      100: '#dbeafe',
-      200: '#bfdbfe',
-      300: '#93c5fd',
-      400: '#60a5fa',
-      500: '#3b82f6', // Main primary
-      600: '#2563eb', // Hover state
-      700: '#1d4ed8',
-      800: '#1e40af',
-      900: '#1e3a8a',
+      50: '#f7f1e4',
+      100: '#efe2c4',
+      200: '#e3b760',
+      300: '#d4a84a',
+      400: '#c4963a',
+      500: '#e3b760',
+      600: '#a36714',
+      700: '#78521c',
+      800: '#5c3f16',
+      900: '#3d2a0f',
     },
-    
-    // Secondary color - Secondary actions, info buttons
     secondary: {
-      50: '#f5f3ff',
-      100: '#ede9fe',
-      200: '#ddd6fe',
-      300: '#c4b5fd',
-      400: '#a78bfa',
-      500: '#8b5cf6', // Main secondary
-      600: '#7c3aed', // Hover state
-      700: '#6d28d9',
-      800: '#5b21b6',
-      900: '#4c1d95',
+      50: '#e8f0ef',
+      100: '#c5d8d6',
+      200: '#90b4b1',
+      300: '#6a9693',
+      400: '#4f7a77',
+      500: '#41646a',
+      600: '#36484a',
+      700: '#253134',
+      800: '#1d2628',
+      900: '#121719',
     },
-    
-    // Success color - Success actions, confirm buttons
     success: {
-      50: '#f0fdf4',
-      100: '#dcfce7',
-      200: '#bbf7d0',
-      300: '#86efac',
-      400: '#4ade80',
-      500: '#22c55e', // Main success
-      600: '#16a34a', // Hover state
-      700: '#15803d',
-      800: '#166534',
-      900: '#14532d',
+      50: '#e8f8f0',
+      100: '#c5ecd8',
+      200: '#6ecf9b',
+      300: '#4cba82',
+      400: '#36a56c',
+      500: '#2e7d32',
+      600: '#256628',
+      700: '#1c4f1f',
+      800: '#143816',
+      900: '#0c220d',
     },
-    
-    // Neutral colors - Backgrounds, borders, text
     neutral: {
-      50: '#f9fafb',
-      100: '#f3f4f6',
-      200: '#e5e7eb',
-      300: '#d1d5db',
-      400: '#9ca3af',
-      500: '#6b7280',
-      600: '#4b5563',
-      700: '#374151',
-      800: '#1f2937',
-      900: '#111827',
+      50: '#f0f5f3',
+      100: '#e7eae5',
+      200: '#cdd6d0',
+      300: '#a8b9b6',
+      400: '#90b4b1',
+      500: '#566a68',
+      600: '#36484a',
+      700: '#253134',
+      800: '#1d2628',
+      900: '#121719',
     },
-    
-    // Danger color - Delete, destructive actions
     danger: {
-      50: '#fef2f2',
-      100: '#fee2e2',
-      200: '#fecaca',
-      300: '#fca5a5',
-      400: '#f87171',
-      500: '#ef4444', // Main danger
-      600: '#dc2626', // Hover state
-      700: '#b91c1c',
-      800: '#991b1b',
-      900: '#7f1d1d',
+      50: '#fce8e8',
+      100: '#f5c4c4',
+      200: '#e57373',
+      300: '#d95353',
+      400: '#c62828',
+      500: '#c62828',
+      600: '#a61f1f',
+      700: '#861919',
+      800: '#661313',
+      900: '#460d0d',
     },
   },
-  
+
   typography: {
     fontFamily: {
-      sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+      sans: [
+        'Inter',
+        'ui-sans-serif',
+        'system-ui',
+        '-apple-system',
+        'Segoe UI',
+        'Arial',
+        'sans-serif',
+      ],
     },
     fontSize: {
-      xs: '0.75rem',    // 12px
-      sm: '0.875rem',   // 14px
-      base: '1rem',     // 16px
-      lg: '1.125rem',   // 18px
-      xl: '1.25rem',    // 20px
-      '2xl': '1.5rem',  // 24px
-      '3xl': '1.875rem', // 30px
+      xs: '0.75rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
     },
   },
-  
+
   spacing: {
-    // Common spacing values
-    xs: '0.25rem',   // 4px
-    sm: '0.5rem',    // 8px
-    md: '1rem',      // 16px
-    lg: '1.5rem',    // 24px
-    xl: '2rem',      // 32px
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem',
   },
 } as const;
 
 /**
- * Button style presets for consistent button styling
- * Using 3 main colors for better UX:
- * - Primary (blue): Main actions, primary buttons
- * - Secondary (purple): Secondary actions
- * - Success (green): Positive actions (Add, Save, Generate)
+ * Button presets — Volt industrial language
  */
 export const buttonStyles = {
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-purple-600 hover:bg-purple-700 text-white',
-  success: 'bg-green-600 hover:bg-green-700 text-white',
-  danger: 'bg-red-600 hover:bg-red-700 text-white',
-  neutral: 'bg-gray-500 hover:bg-gray-600 text-white',
-  outline: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50',
+  primary: 'volt-btn',
+  secondary: 'volt-btn volt-btn--secondary',
+  success: 'volt-btn',
+  danger: 'volt-btn volt-btn--danger',
+  neutral: 'volt-btn volt-btn--ghost',
+  outline: 'volt-btn volt-btn--secondary',
 } as const;
 
-/**
- * Helper function to get Tailwind classes for buttons
- */
-export const getButtonClass = (variant: keyof typeof buttonStyles, additionalClasses?: string) => {
-  const baseClasses = 'px-4 py-1.5 rounded-lg font-medium text-sm transition-colors';
+export const getButtonClass = (
+  variant: keyof typeof buttonStyles,
+  additionalClasses?: string
+) => {
+  const baseClasses = 'text-sm transition-colors';
   return `${baseClasses} ${buttonStyles[variant]} ${additionalClasses || ''}`.trim();
 };
 
-/**
- * Color classes for backgrounds and highlights
- */
 export const colorClasses = {
   primary: {
     bg: 'bg-primary-50',
@@ -148,41 +138,3 @@ export const colorClasses = {
     border: 'border-success-200',
   },
 } as const;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

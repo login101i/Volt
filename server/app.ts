@@ -13,7 +13,10 @@ const app = express();
 // Allow multiple origins for ngrok support
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://elektrykpoznan.online',
+  'https://www.elektrykpoznan.online',
   process.env.FRONTEND_URL,
+  process.env.PRODUCTION_FRONTEND_URL,
   process.env.NGROK_FRONTEND_URL
 ].filter(Boolean); // Remove undefined values
 

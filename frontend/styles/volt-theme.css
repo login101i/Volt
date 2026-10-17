@@ -1,0 +1,482 @@
+/**
+ * Volt design system — adapted from projekt-2023-nowy-kierunek-volt.html
+ * Industrial dark theme with gold accent (V 16.10.26 / v1.004).
+ */
+
+:root {
+  color-scheme: dark;
+  --volt-bg: #121719;
+  --volt-surface: #1d2628;
+  --volt-surface2: #253134;
+  --volt-line: #36484a;
+  --volt-text: #f0f5f3;
+  --volt-muted: #a8b9b6;
+  --volt-mint: #e3b760;
+  --volt-blue: #90b4b1;
+  --volt-gold: #e3b760;
+  --volt-accent: #e3b760;
+  --volt-accent-soft: #eac781;
+  --volt-danger: #e57373;
+  --volt-success: #6ecf9b;
+  --volt-radius: 14px;
+  --volt-radius-sm: 10px;
+  --volt-wrap: min(1140px, calc(100% - 44px));
+  --volt-font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --background: var(--volt-bg);
+  --foreground: var(--volt-text);
+}
+
+html.light {
+  color-scheme: light;
+  --volt-bg: #eef0ec;
+  --volt-surface: #ffffff;
+  --volt-surface2: #e7eae5;
+  --volt-line: #cdd6d0;
+  --volt-text: #1b2828;
+  --volt-muted: #566a68;
+  --volt-mint: #a36714;
+  --volt-blue: #41646a;
+  --volt-gold: #a36714;
+  --volt-accent: #a36714;
+  --volt-accent-soft: #b88a43;
+  --volt-danger: #c62828;
+  --volt-success: #2e7d32;
+  --background: var(--volt-bg);
+  --foreground: var(--volt-text);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--volt-text);
+  background: linear-gradient(135deg, #172124 0%, #121719 57%, #1c2828 100%) fixed;
+  font-family: var(--volt-font);
+  line-height: 1.6;
+  transition: background 0.25s, color 0.25s;
+}
+
+html.light body {
+  background: linear-gradient(145deg, #f2f4ef, #e4e8e2 65%, #f3f3ed) fixed;
+}
+
+/* Subtle industrial grid overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(#b5c4b40a 1px, transparent 1px),
+    linear-gradient(90deg, #b5c4b40a 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, #0008, transparent 85%);
+}
+
+html.light body::before {
+  background-image:
+    linear-gradient(#14251b0a 1px, transparent 1px),
+    linear-gradient(90deg, #14251b0a 1px, transparent 1px);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--volt-mint);
+  outline-offset: 4px;
+}
+
+/* ——— Layout primitives ——— */
+.volt-wrap {
+  width: var(--volt-wrap);
+  margin-inline: auto;
+}
+
+.volt-page {
+  min-height: 100vh;
+  position: relative;
+}
+
+.volt-eyebrow {
+  color: var(--volt-mint);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.volt-gradient-text {
+  background: linear-gradient(105deg, var(--volt-accent-soft), #b3cfbf);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+html.light .volt-gradient-text {
+  background: linear-gradient(110deg, #a36714, #446f64);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.volt-muted {
+  color: var(--volt-muted);
+}
+
+.volt-bolt {
+  color: var(--volt-mint);
+}
+
+/* ——— Buttons ——— */
+.volt-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  background: var(--volt-mint);
+  color: #161c1e;
+  font-weight: 750;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  font: inherit;
+}
+
+.volt-btn:hover {
+  transform: translateY(-2px);
+}
+
+html.light .volt-btn {
+  color: #fff;
+  background: #78521c;
+}
+
+.volt-btn--secondary {
+  background: transparent;
+  border-color: var(--volt-line);
+  color: var(--volt-text);
+}
+
+.volt-btn--secondary:hover {
+  border-color: var(--volt-mint);
+}
+
+.volt-btn--ghost {
+  background: var(--volt-surface);
+  border: 1px solid var(--volt-line);
+  color: var(--volt-text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 750;
+}
+
+.volt-btn--ghost:hover {
+  border-color: var(--volt-mint);
+}
+
+.volt-btn--danger {
+  background: var(--volt-danger);
+  color: #fff;
+}
+
+.volt-btn--sm {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+/* ——— Cards / surfaces ——— */
+.volt-card {
+  background: linear-gradient(155deg, var(--volt-surface2), var(--volt-surface));
+  border: 1px solid var(--volt-line);
+  border-radius: var(--volt-radius);
+  padding: 24px;
+}
+
+html.light .volt-card {
+  background: var(--volt-surface);
+  box-shadow: 0 3px 15px #14251b0c;
+}
+
+.volt-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: linear-gradient(100deg, var(--volt-surface), var(--volt-surface2));
+  border: 1px solid var(--volt-line);
+  border-left: 4px solid var(--volt-mint);
+  border-radius: var(--volt-radius);
+  padding: 28px;
+}
+
+html.light .volt-panel {
+  box-shadow: 0 3px 15px #14251b0c;
+}
+
+.volt-panel h2 {
+  font-size: clamp(28px, 4vw, 36px);
+  margin: 8px 0;
+  letter-spacing: -0.035em;
+}
+
+.volt-panel p {
+  max-width: 600px;
+  color: var(--volt-muted);
+  margin: 0 0 15px;
+}
+
+.volt-steps {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--volt-muted);
+}
+
+/* ——— App action tiles (ELGEN hub) ——— */
+.volt-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.volt-action-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 200px;
+  padding: 22px 20px;
+  border-radius: 13px;
+  border: 1px solid var(--volt-line);
+  background: var(--volt-surface);
+  transition: border-color 0.18s, transform 0.18s, background 0.18s;
+}
+
+.volt-action-tile:hover {
+  border-color: var(--volt-mint);
+  transform: translateY(-3px);
+  background: var(--volt-surface2);
+}
+
+.volt-action-tile .tile-glyph {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.volt-action-tile h2 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  color: var(--volt-text);
+}
+
+.volt-action-tile p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--volt-muted);
+  line-height: 1.45;
+}
+
+.volt-action-tile .tile-arrow {
+  margin-top: 16px;
+  color: var(--volt-mint);
+  font-size: 20px;
+}
+
+/* ——— Shared app chrome ——— */
+.volt-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--volt-line);
+}
+
+.volt-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.volt-brandmark {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 12px;
+  background: var(--volt-mint);
+  color: #171c1e;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+html.light .volt-brandmark {
+  background: #b88a43;
+  color: #fff;
+}
+
+.volt-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.volt-brand-text strong {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.volt-brand-text span {
+  font-size: 12px;
+  color: var(--volt-muted);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.volt-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--volt-muted);
+  font-size: 13px;
+}
+
+.volt-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--volt-line);
+  border-radius: var(--volt-radius);
+  background: var(--volt-surface);
+}
+
+.volt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.volt-table th {
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--volt-line);
+  color: var(--volt-muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--volt-surface2);
+}
+
+.volt-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--volt-line);
+  color: var(--volt-text);
+}
+
+.volt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.volt-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.volt-table tbody tr:hover {
+  background: var(--volt-surface2);
+}
+
+.volt-badge {
+  display: inline-flex;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--volt-surface2);
+  border: 1px solid var(--volt-line);
+  color: var(--volt-muted);
+}
+
+.volt-badge--ok {
+  color: var(--volt-success);
+  border-color: color-mix(in srgb, var(--volt-success) 40%, var(--volt-line));
+}
+
+.volt-badge--warn {
+  color: var(--volt-mint);
+  border-color: color-mix(in srgb, var(--volt-mint) 40%, var(--volt-line));
+}
+
+/* Soft override helpers for legacy gray-50 pages */
+.volt-shell-main {
+  padding: 28px 0 60px;
+}
+
+/* Bridge for existing white/gray content panels on Volt chrome */
+.volt-page .bg-white,
+.volt-page .max-w-4xl.mx-auto.bg-white,
+.volt-page .max-w-6xl {
+  color: #1b2828;
+}
+
+html:not(.light) .volt-page .bg-white {
+  background: var(--volt-surface) !important;
+  color: var(--volt-text);
+  border-color: var(--volt-line);
+}
+
+html:not(.light) .volt-page .text-gray-800,
+html:not(.light) .volt-page .text-gray-900,
+html:not(.light) .volt-page .text-gray-700 {
+  color: var(--volt-text) !important;
+}
+
+html:not(.light) .volt-page .text-gray-500,
+html:not(.light) .volt-page .text-gray-600 {
+  color: var(--volt-muted) !important;
+}
+
+html:not(.light) .volt-page .border-gray-200,
+html:not(.light) .volt-page .border-gray-300 {
+  border-color: var(--volt-line) !important;
+}
+
+html:not(.light) .volt-page .bg-gray-50,
+html:not(.light) .volt-page .bg-indigo-50,
+html:not(.light) .volt-page .bg-blue-50,
+html:not(.light) .volt-page .bg-teal-50 {
+  background: var(--volt-surface2) !important;
+}
+
+@media (max-width: 620px) {
+  .volt-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .volt-header-meta {
+    width: 100%;
+  }
+
+  .volt-action-tile {
+    min-height: 160px;
+  }
+}
