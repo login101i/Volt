@@ -325,7 +325,7 @@ export default function ProtocolOdbioruPage() {
       <div className="max-w-4xl mx-auto bg-white shadow-sm min-h-screen">
         {/* Header with Back Button */}
         <div className="px-6 py-4 border-b border-gray-200 bg-purple-600 text-white">
-          <Link href="/" className="text-white hover:text-purple-200 flex items-center">
+          <Link href="/app" className="text-white hover:text-purple-200 flex items-center">
             <span className="text-xl mr-2">←</span>
             <span>Powrót</span>
           </Link>

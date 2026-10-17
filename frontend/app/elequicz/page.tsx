@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import AppShell from '@/components/AppShell';
 
 interface Question {
   id: number;
@@ -445,30 +445,22 @@ export default function EleQuiczPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-indigo-600 text-white px-6 py-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Link href="/" className="text-white hover:text-indigo-200 flex items-center">
-              <span className="text-xl mr-2">←</span>
-              <span>Powrót</span>
-            </Link>
-            <div className="text-2xl font-bold ml-6">
-              EleQuicz
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12 max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Pytania i Odpowiedzi
+    <AppShell backHref="/app" title="EleQuicz" wrap>
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <p className="volt-eyebrow">Baza wiedzy</p>
+          <h1
+            style={{
+              fontSize: 'clamp(28px, 4vw, 40px)',
+              fontWeight: 800,
+              letterSpacing: '-0.035em',
+              margin: '10px 0 8px',
+            }}
+          >
+            Pytania i odpowiedzi
           </h1>
-          <p className="text-xl text-gray-600">
-            Instalacje Elektryczne
+          <p className="volt-muted" style={{ fontSize: 18, margin: 0 }}>
+            Instalacje elektryczne
           </p>
         </div>
 
@@ -529,21 +521,22 @@ export default function EleQuiczPage() {
           })}
         </div>
 
-        {/* Info Box */}
-        <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-start gap-3">
-            <div className="text-blue-600 text-2xl">ℹ️</div>
+        <div className="volt-card" style={{ marginTop: 40 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ fontSize: 22 }} aria-hidden>
+              ℹ️
+            </div>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">Informacja</h3>
-              <p className="text-blue-800 text-sm">
-                Ta sekcja zawiera pytania i odpowiedzi dotyczące instalacji elektrycznych. 
+              <h3 style={{ margin: '0 0 6px', fontSize: 16 }}>Informacja</h3>
+              <p className="volt-muted" style={{ margin: 0, fontSize: 14 }}>
+                Ta sekcja zawiera pytania i odpowiedzi dotyczące instalacji elektrycznych.
                 Kliknij na pytanie, aby zobaczyć odpowiedź.
               </p>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
 

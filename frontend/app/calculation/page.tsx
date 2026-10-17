@@ -2014,7 +2014,7 @@ function CalculationPageContent() {
           {/* Header - Sticky */}
           <div className="sticky top-0 bg-gray-50 z-40 pb-1 pt-2 border-b border-gray-200">
             <Link
-              href="/"
+              href="/app"
               className="text-gray-600 hover:text-gray-900 active:text-gray-900 flex items-center mb-1 text-xs md:text-sm touch-manipulation"
             >
               <span className="text-base md:text-lg mr-1">←</span>

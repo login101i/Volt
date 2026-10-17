@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import AppShell from '@/components/AppShell';
 
 interface Order {
   id: number;
@@ -33,7 +34,6 @@ export default function OrdersPage() {
       setError(null);
       const response = await api.orders.getAll();
       if (response.success) {
-        // Filter orders where total > 0
         const filteredOrders = response.data.filter((order: Order) => order.total > 0);
         setOrders(filteredOrders);
       } else {
@@ -52,7 +52,7 @@ export default function OrdersPage() {
   };
 
   const handleDelete = async (orderId: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     if (!confirm('Czy na pewno chcesz usunąć tę ofertę?')) {
       return;
     }
@@ -61,8 +61,7 @@ export default function OrdersPage() {
       setDeletingId(orderId);
       const response = await api.offers.delete(orderId);
       if (response.success) {
-        // Remove from local state
-        setOrders(orders.filter(order => order.id !== orderId));
+        setOrders(orders.filter((order) => order.id !== orderId));
       } else {
         alert('Błąd podczas usuwania oferty');
       }
@@ -78,138 +77,110 @@ export default function OrdersPage() {
     router.push(`/offer/summary?id=${orderId}`);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'shipped':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getStatusBadge = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'completed') return 'volt-badge volt-badge--ok';
+    if (s === 'pending') return 'volt-badge volt-badge--warn';
+    return 'volt-badge';
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading orders...</div>
-      </div>
+      <AppShell backHref="/app" title="Lista Ofert">
+        <p className="volt-muted" style={{ fontSize: 18 }}>
+          Ładowanie ofert…
+        </p>
+      </AppShell>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-red-600 text-xl mb-4">Error: {error}</div>
-        <button
-          onClick={fetchOrders}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Retry
+      <AppShell backHref="/app" title="Lista Ofert">
+        <p style={{ color: 'var(--volt-danger)', marginBottom: 16 }}>Błąd: {error}</p>
+        <button type="button" onClick={fetchOrders} className="volt-btn">
+          Ponów
         </button>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Lista Ofert</h1>
-        <button
-          onClick={fetchOrders}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-        >
+    <AppShell
+      backHref="/app"
+      title="Lista Ofert"
+      actions={
+        <button type="button" onClick={fetchOrders} className="volt-btn volt-btn--sm">
           Odśwież
         </button>
+      }
+    >
+      <div style={{ marginBottom: 22 }}>
+        <p className="volt-eyebrow">Oferty</p>
+        <h1
+          style={{
+            fontSize: 'clamp(26px, 3.5vw, 34px)',
+            letterSpacing: '-0.03em',
+            margin: '6px 0 0',
+            fontWeight: 800,
+          }}
+        >
+          Zapisane oferty
+        </h1>
       </div>
 
       {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Brak ofert</p>
+        <div className="volt-card" style={{ textAlign: 'center', padding: 48 }}>
+          <p className="volt-muted" style={{ fontSize: 17, margin: 0 }}>
+            Brak ofert
+          </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead className="bg-gray-50">
+        <div className="volt-table-wrap">
+          <table className="volt-table">
+            <thead>
               <tr>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Numer Oferty
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Klient
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Produkt
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Liczba Obwodów
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Wartość
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data Utworzenia
-                </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Akcje
-                </th>
+                <th>Numer oferty</th>
+                <th>Klient</th>
+                <th>Produkt</th>
+                <th>Liczba obwodów</th>
+                <th>Wartość</th>
+                <th>Status</th>
+                <th>Data utworzenia</th>
+                <th>Akcje</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {orders.map((order) => (
-                <tr 
-                  key={order.id} 
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onDoubleClick={() => handleRowDoubleClick(order.id)}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {order.orderNumber}
+                <tr key={order.id} onDoubleClick={() => handleRowDoubleClick(order.id)}>
+                  <td style={{ fontWeight: 700 }}>{order.orderNumber}</td>
+                  <td className="volt-muted">{order.customerName}</td>
+                  <td className="volt-muted">{order.product}</td>
+                  <td className="volt-muted">{order.quantity}</td>
+                  <td style={{ fontWeight: 700 }}>{order.total.toFixed(2)} PLN</td>
+                  <td>
+                    <span className={getStatusBadge(order.status)}>{order.status}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.customerName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.product}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.quantity}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                    {order.total.toFixed(2)} PLN
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="volt-muted">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex items-center gap-2">
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <div style={{ display: 'flex', gap: 8 }}>
                       <button
+                        type="button"
                         onClick={() => handleEdit(order.id)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                        title="Edytuj"
+                        className="volt-btn volt-btn--sm"
                       >
                         Edytuj
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => handleDelete(order.id, e)}
                         disabled={deletingId === order.id}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Usuń"
+                        className="volt-btn volt-btn--danger volt-btn--sm"
+                        style={{ opacity: deletingId === order.id ? 0.5 : 1 }}
                       >
-                        {deletingId === order.id ? 'Usuwanie...' : 'Usuń'}
+                        {deletingId === order.id ? 'Usuwanie…' : 'Usuń'}
                       </button>
                     </div>
                   </td>
@@ -219,7 +190,6 @@ export default function OrdersPage() {
           </table>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }
-

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // AWS Amplify automatycznie wykrywa Next.js i używa odpowiedniej konfiguracji
   // Nie używamy distDir: 'dist' bo Amplify potrzebuje domyślnej struktury .next
   // Disable image optimization
@@ -10,4 +11,5 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
 

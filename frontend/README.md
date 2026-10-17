@@ -1,25 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with TypeScript.
+# Volt Frontend (Next.js 15)
 
-## Getting Started
+UI generatora ofert instalacji elektrycznych (**ELGEN / Volt**).
 
-First, install the dependencies:
+Pełna architektura, API i mapa plików: **[`../server/README.md`](../server/README.md)** oraz **[`../AGENTS.md`](../AGENTS.md)**.
+
+## Setup
 
 ```bash
+cp .env.example .env.local
+# Ustaw NEXT_PUBLIC_API_URL=http://localhost:5000
+# (opcjonalnie klucze AWS do uploadu S3)
+
 npm install
-```
-
-Then, run the development server:
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otwórz [http://localhost:3000](http://localhost:3000). Backend musi działać na porcie **5000**.
 
-## Learn More
+## Konieczne zmienne (`.env.local`)
 
-To learn more about Next.js, take a look at the following resources:
+| Zmienna | Wymagana | Opis |
+|---------|----------|------|
+| `NEXT_PUBLIC_API_URL` | **tak** | URL Express, np. `http://localhost:5000` |
+| `ACCESS_KEY` | S3 | AWS access key → `/api/media` |
+| `SECRET_KEY` | S3 | AWS secret |
+| `REGION` | S3 | np. `eu-central-1` |
+| `BUCKET_NAME` | S3 | Bucket na zdjęcia komponentów |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Kluczowe pliki
 
+- `lib/api.ts` — klient HTTP do backendu
+- `app/offer/new/page.tsx` — kreator oferty
+- `app/calculation/page.tsx` — kalkulacja rozdzielnicy
+- `app/orders/page.tsx` — lista ofert
+- `app/api/proxy/[...path]/route.ts` — proxy (ngrok)
+- `app/api/media/route.ts` — signed upload S3

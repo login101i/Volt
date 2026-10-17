@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import AppShell from '@/components/AppShell';
 
 // Typy danych
 type Material = 'Cu' | 'Al';
@@ -484,30 +484,22 @@ export default function DoborKabliPage() {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-teal-600 text-white px-6 py-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Link href="/" className="text-white hover:text-teal-200 flex items-center">
-              <span className="text-xl mr-2">←</span>
-              <span>Powrót</span>
-            </Link>
-            <div className="text-2xl font-bold ml-6">
-              Dobór Kabli
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Dobór Przewodów Elektrycznych
+    <AppShell backHref="/app" title="Dobór Kabli" wrap>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <p className="volt-eyebrow">Narzędzie</p>
+          <h1
+            style={{
+              fontSize: 'clamp(28px, 4vw, 40px)',
+              fontWeight: 800,
+              letterSpacing: '-0.035em',
+              margin: '10px 0 8px',
+            }}
+          >
+            Dobór przewodów elektrycznych
           </h1>
-          <p className="text-xl text-gray-600">
-            Precyzyjny wybór przewodów zgodny z normą PN-HD 60364-5-52
+          <p className="volt-muted" style={{ fontSize: 18, margin: 0 }}>
+            Precyzyjny wybór zgodny z normą PN-HD 60364-5-52
           </p>
         </div>
 
@@ -1478,7 +1470,7 @@ export default function DoborKabliPage() {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

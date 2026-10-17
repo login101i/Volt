@@ -1,107 +1,102 @@
-import Link from 'next/link';
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { useGlobalStyle } from '@/components/GlobalStyleProvider';
+
+export default function LandingPage() {
+  const { theme, toggleTheme } = useGlobalStyle();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 via-purple-100 to-purple-300 relative overflow-hidden">
-      {/* Gradient overlay for darker edges */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-purple-400/20 pointer-events-none"></div>
-      {/* Header */}
-      <header className="bg-purple-600 text-white px-6 py-4 shadow-lg relative z-20">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="text-2xl font-bold">
-              ELGEN GENERATOR OFERT
-            </div>
-            <div className="text-sm opacity-90">
-              Instalacje Elektryczne
-            </div>
+    <div className="volt-page">
+      <header className="volt-wrap">
+        <div className="volt-header">
+          <div className="volt-brand">
+            <span className="volt-brandmark" aria-hidden>
+              ϟ
+            </span>
+            <span className="volt-brand-text">
+              <strong>PROJEKT 2027</strong>
+              <span>Elektryka · Automatyka · Software · AI</span>
+            </span>
           </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm">maciejkruszyniak@gmail.com</span>
-            <button className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded transition-colors">
-              Wyloguj
+          <div className="volt-header-meta">
+            <Link href="#volt" className="volt-btn volt-btn--secondary volt-btn--sm">
+              Volt
+            </Link>
+            <button
+              type="button"
+              className="volt-btn volt-btn--ghost volt-btn--sm"
+              onClick={toggleTheme}
+            >
+              {theme === 'dark' ? '☀ Jasny' : '☾ Ciemny'}
             </button>
           </div>
         </div>
       </header>
 
-    
+      <main>
+        <section className="volt-wrap" style={{ padding: '72px 0 48px' }}>
+          <p className="volt-eyebrow">W trakcie walidacji</p>
+          <h1
+            style={{
+              fontSize: 'clamp(46px, 7vw, 88px)',
+              lineHeight: 1.05,
+              letterSpacing: '-0.055em',
+              maxWidth: 900,
+              margin: '16px 0 20px',
+              fontWeight: 900,
+            }}
+          >
+            Projekt <span className="volt-gradient-text">2023</span>
+          </h1>
+          <p
+            className="volt-muted"
+            style={{
+              fontSize: 'clamp(16px, 2vw, 20px)',
+              maxWidth: 680,
+              marginBottom: 28,
+            }}
+          >
+            Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po realizację
+            i dokumentację. Centrum pracy zespołu elektryka i oprogramowania.
+          </p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link href="/app" className="volt-btn">
+              Otwórz aplikację Volt →
+            </Link>
+            <a href="#volt" className="volt-btn volt-btn--secondary">
+              Dowiedz się więcej
+            </a>
+          </div>
+        </section>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12 relative z-10">
-        <div className="text-center mb-12">
-        
-       
-        </div>
-
-        {/* Action Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-          {/* Card 1: Nowa Oferta */}
-          <Link href="/offer/new" className="group">
-            <div className="bg-green-500 hover:bg-green-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="relative mb-4">
-                <div className="text-7xl">📄</div>
-                <div className="absolute -top-2 -right-2 text-4xl font-bold">+</div>
+        <section className="volt-wrap" id="volt" style={{ padding: '24px 0 80px' }}>
+          <div className="volt-panel">
+            <div>
+              <div className="volt-eyebrow">Nasz projekt · w rozwoju</div>
+              <h2>
+                <span className="volt-bolt">ϟ</span> Volt
+              </h2>
+              <p>
+                Narzędzie do tworzenia czytelnych ofert na rozdzielnice i prace elektryczne.
+                Centrum przygotowania wyceny i odpowiedzi klientowi — nie konkurent dla
+                Hagercad ani zastępstwo projektu technicznego.
+              </p>
+              <div className="volt-steps">
+                <span>Zapytanie</span>
+                <span>→</span>
+                <span>Dobór i kalkulacja</span>
+                <span>→</span>
+                <span>Oferta Volt</span>
+                <span>→</span>
+                <span>Akceptacja</span>
               </div>
-              <h2 className="text-2xl font-bold mb-3">Nowa Oferta</h2>
-              <p className="text-green-50 text-sm">Utwórz nową ofertę dla klienta</p>
             </div>
-          </Link>
-
-          {/* Card 2: Lista Ofert */}
-          <Link href="/orders" className="group">
-            <div className="bg-blue-500 hover:bg-blue-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">📚</div>
-              <h2 className="text-2xl font-bold mb-3">Lista Ofert</h2>
-              <p className="text-blue-50 text-sm">Przeglądaj zapisane oferty</p>
-            </div>
-          </Link>
-
-          {/* Card 3: Dashboard */}
-          <Link href="#" className="group">
-            <div className="bg-cyan-400 hover:bg-cyan-500 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">📊</div>
-              <h2 className="text-2xl font-bold mb-3">Dashboard</h2>
-              <p className="text-cyan-50 text-sm">Statystyki i analizy</p>
-            </div>
-          </Link>
-
-          {/* Card 4: Szablony */}
-          <Link href="#" className="group">
-            <div className="bg-purple-500 hover:bg-purple-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">📑</div>
-              <h2 className="text-2xl font-bold mb-3">Szablony</h2>
-              <p className="text-purple-50 text-sm">Gotowe szablony ofert</p>
-            </div>
-          </Link>
-
-          {/* Card 5: Kalkulacja */}
-          <Link href="/calculation" className="group">
-            <div className="bg-orange-500 hover:bg-orange-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">🔢</div>
-              <h2 className="text-2xl font-bold mb-3">Kalkulacja</h2>
-              <p className="text-orange-50 text-sm">Obliczenia obwodów elektrycznych</p>
-            </div>
-          </Link>
-
-          {/* Card 6: EleQuicz */}
-          <Link href="/elequicz" className="group">
-            <div className="bg-indigo-500 hover:bg-indigo-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">❓</div>
-              <h2 className="text-2xl font-bold mb-3">EleQuicz</h2>
-              <p className="text-indigo-50 text-sm">Pytania i odpowiedzi o instalacje elektryczne</p>
-            </div>
-          </Link>
-
-          {/* Card 7: Dobór Kabli */}
-          <Link href="/dobor-kabli" className="group">
-            <div className="bg-teal-500 hover:bg-teal-600 rounded-xl p-8 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl text-white h-full flex flex-col items-center justify-center text-center min-h-[250px]">
-              <div className="mb-4 text-7xl">🔌</div>
-              <h2 className="text-2xl font-bold mb-3">Dobór Kabli</h2>
-              <p className="text-teal-50 text-sm">Precyzyjny wybór przewodów - przekrój, obciążalność i więcej</p>
-            </div>
-          </Link>
-        </div>
+            <Link href="/app" className="volt-btn volt-link">
+              Wejdź do ELGEN ↗
+            </Link>
+          </div>
+        </section>
       </main>
     </div>
   );
