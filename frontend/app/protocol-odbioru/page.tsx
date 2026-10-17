@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import html2pdf from 'html2pdf.js';
 
 export default function ProtocolOdbioruPage() {
   const [currentDate] = useState(new Date().toLocaleDateString('pl-PL'));
@@ -242,9 +241,11 @@ export default function ProtocolOdbioruPage() {
   };
 
   // Generate PDF function
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const element = document.getElementById('protocol-content');
     if (!element) return;
+
+    const html2pdf = (await import('html2pdf.js')).default;
 
     // Temporarily hide unchecked items and input fields for PDF generation
     const elementsToHide: HTMLElement[] = [];
