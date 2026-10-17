@@ -4,10 +4,15 @@ import Link from 'next/link';
 import AppShell from '@/components/AppShell';
 import { APP_NAV_ITEMS } from '@/lib/appNav';
 
+/**
+ * Panel narzędzi — trasa `/panel`.
+ * Nie używaj folderu `app/app` (URL `/app`): Next.js standalone + Docker WORKDIR `/app`
+ * wtedy serwuje złą stronę na `/` (vercel/next.js#68690).
+ */
 export default function AppHubPage() {
   return (
     <AppShell backHref="/" title="ELGEN GENERATOR OFERT">
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 28 }} data-page="app-hub">
         <p className="volt-eyebrow">Aplikacja Volt</p>
         <h1
           style={{

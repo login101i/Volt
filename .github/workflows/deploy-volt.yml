@@ -2,6 +2,13 @@ name: Deploy Volt to Hetzner
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'server/**'
+      - 'docker-compose.volt.yml'
+      - '.github/workflows/deploy-volt.yml'
 
 jobs:
   deploy:
@@ -22,4 +29,6 @@ jobs:
             docker compose -p volt -f docker-compose.volt.yml up -d
             curl --fail --silent --show-error http://127.0.0.1:5000/health
             curl --fail --silent --show-error http://127.0.0.1:3100/ -o /dev/null
+            curl --fail --silent --show-error http://127.0.0.1:3100/ | grep -q 'Projekt 2027'
+            curl --fail --silent --show-error http://127.0.0.1:3100/panel | grep -q 'Panel narzędzi'
             docker compose -p volt -f docker-compose.volt.yml ps
