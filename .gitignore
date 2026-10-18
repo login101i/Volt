@@ -13,12 +13,20 @@ frontend/out/
 .env.local
 .env*.local
 
-# IDE
+# IDE / Cursor (local rules — nie commituj całego folderu przypadkiem)
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
+
+# Opticut / lokalne leftovery — nie część deployu Volt
+docker-compose.yml
+.github/workflows/deploy-hetzner.yml
+projekt-2023-nowy-kierunek-volt.html
+databaseMigration_Hetzner_readme.md
+terraform_*.zip
 
 # OS
 .DS_Store

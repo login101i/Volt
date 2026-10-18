@@ -83,7 +83,8 @@ async function fetchCommitsByDay(): Promise<Map<string, number> | null> {
       `https://api.github.com/repos/${GITHUB_REPO}/commits?since=${since.toISOString()}&per_page=100`;
 
     for (let page = 0; page < 12 && url; page++) {
-      const res = await fetch(url, {
+      const pageUrl: string = url;
+      const res: Response = await fetch(pageUrl, {
         headers: {
           Accept: 'application/vnd.github+json',
           'User-Agent': 'volt-dev-activity',
@@ -104,8 +105,8 @@ async function fetchCommitsByDay(): Promise<Map<string, number> | null> {
       }
 
       const link = res.headers.get('link');
-      const next = link?.match(/<([^>]+)>;\s*rel="next"/);
-      url = next?.[1] ?? null;
+      const nextMatch = link?.match(/<([^>]+)>;\s*rel="next"/);
+      url = nextMatch?.[1] ?? null;
       if (batch.length < 100) break;
     }
 
