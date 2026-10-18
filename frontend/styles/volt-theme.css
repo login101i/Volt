@@ -352,6 +352,20 @@ html.light .volt-brandmark {
   letter-spacing: 0;
 }
 
+.volt-app-version {
+  margin-left: 4px;
+  padding: 4px 9px;
+  border: 1px solid var(--volt-line);
+  border-radius: 8px;
+  background: var(--volt-surface);
+  color: var(--volt-mint);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  align-self: center;
+}
+
 .volt-header-meta {
   display: flex;
   align-items: center;

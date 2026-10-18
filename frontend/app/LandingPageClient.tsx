@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import DevActivityGraph from '@/components/DevActivityGraph';
 import { useGlobalStyle } from '@/components/GlobalStyleProvider';
+import { APP_VERSION } from '@/lib/appVersion';
 
 /** Publiczna strona główna `/` — wizja Projektu 2027 + wejście do aplikacji pod `/panel`. */
 export default function LandingPageClient() {
@@ -26,6 +27,9 @@ export default function LandingPageClient() {
             <span className="volt-brand-text">
               <strong>PROJEKT 2027</strong>
               <span>Elektryka · Automatyka · Software · AI</span>
+            </span>
+            <span className="volt-app-version" title="Wersja aplikacji">
+              {APP_VERSION}
             </span>
           </div>
           <nav className="volt-header-meta" aria-label="Sekcje strony">
