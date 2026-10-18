@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import DevActivityGraph from '@/components/DevActivityGraph';
 import { useGlobalStyle } from '@/components/GlobalStyleProvider';
 
 /** Publiczna strona główna `/` — wizja Projektu 2027 + wejście do aplikacji pod `/panel`. */
@@ -9,6 +10,13 @@ export default function LandingPageClient() {
 
   return (
     <div className="volt-page" data-page="landing">
+      <div className="volt-landing-bg" aria-hidden>
+        <div
+          className="volt-landing-bg__photo"
+          style={{ backgroundImage: 'url(/images/landing-electrical-hall.jpg)' }}
+        />
+        <div className="volt-landing-bg__veil" />
+      </div>
       <header className="volt-wrap">
         <div className="volt-header">
           <div className="volt-brand">
@@ -43,13 +51,18 @@ export default function LandingPageClient() {
       <main>
         <section className="volt-wrap volt-landing-hero" id="start">
           <p className="volt-eyebrow">W trakcie walidacji</p>
-          <h1>
-            Projekt <span className="volt-gradient-text">2027</span>
-          </h1>
-          <p className="volt-muted volt-landing-lead">
-            Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po realizację
-            i dokumentację. Centrum pracy zespołu elektryka i oprogramowania.
-          </p>
+          <div className="volt-landing-hero-main">
+            <div className="volt-landing-hero-copy">
+              <h1>
+                Projekt <span className="volt-gradient-text">2027</span>
+              </h1>
+              <p className="volt-muted volt-landing-lead">
+                Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po realizację
+                i dokumentację. Centrum pracy zespołu elektryka i oprogramowania.
+              </p>
+            </div>
+            <DevActivityGraph />
+          </div>
           <div className="volt-landing-actions">
             <Link href="/panel" className="volt-btn">
               Otwórz aplikację Volt →

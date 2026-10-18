@@ -4,12 +4,16 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ARG NEXT_PUBLIC_API_URL=https://elektrykpoznan.online
+ARG NEXT_PUBLIC_BUILD_COMMIT_DATE=
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_BUILD_COMMIT_DATE=$NEXT_PUBLIC_BUILD_COMMIT_DATE
 # Fail early if landing source is missing from the build context
 RUN test -f app/page.tsx \
   && test -f app/LandingPageClient.tsx \
+  && test -f components/DevActivityGraph.tsx \
   && grep -q 'LandingPageClient' app/page.tsx \
   && grep -q 'data-page="landing"' app/LandingPageClient.tsx \
+  && grep -q 'DevActivityGraph' app/LandingPageClient.tsx \
   && test -f app/panel/page.tsx \
   && test ! -e app/app/page.tsx
 RUN npm run build
