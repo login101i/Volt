@@ -5,7 +5,7 @@ import LandingPageClient from './LandingPageClient';
 export const metadata: Metadata = {
   title: 'Projekt 2027 — Elektryka · Automatyka · Software · AI',
   description:
-    'Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po realizację i dokumentację.',
+    'Jedne drzwi dla klienta: zgłoszenie, projekt w narzędziach branżowych, oferta Volt, realizacja i dokumentacja. Model biznesowy w trakcie walidacji.',
 };
 
 export default function HomePage() {
