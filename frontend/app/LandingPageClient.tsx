@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useGlobalStyle } from '@/components/GlobalStyleProvider';
 
-/** Publiczna strona główna `/` — nie panel `/app`. */
+/** Publiczna strona główna `/` — panel aplikacji jest pod `/panel`. */
 export default function LandingPageClient() {
   const { theme, toggleTheme } = useGlobalStyle();
 
@@ -24,7 +24,7 @@ export default function LandingPageClient() {
             <Link href="#volt" className="volt-btn volt-btn--secondary volt-btn--sm">
               Volt
             </Link>
-            <Link href="/app" className="volt-btn volt-btn--secondary volt-btn--sm">
+            <Link href="/panel" className="volt-btn volt-btn--secondary volt-btn--sm">
               Aplikacja
             </Link>
             <button
@@ -65,7 +65,7 @@ export default function LandingPageClient() {
             i dokumentację. Centrum pracy zespołu elektryka i oprogramowania.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/app" className="volt-btn">
+            <Link href="/panel" className="volt-btn">
               Otwórz aplikację Volt →
             </Link>
             <a href="#volt" className="volt-btn volt-btn--secondary">
@@ -96,7 +96,7 @@ export default function LandingPageClient() {
                 <span>Akceptacja</span>
               </div>
             </div>
-            <Link href="/app" className="volt-btn volt-link">
+            <Link href="/panel" className="volt-btn volt-link">
               Wejdź do ELGEN ↗
             </Link>
           </div>

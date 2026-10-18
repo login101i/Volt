@@ -1,15 +1,25 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // AWS Amplify automatycznie wykrywa Next.js i używa odpowiedniej konfiguracji
-  // Nie używamy distDir: 'dist' bo Amplify potrzebuje domyślnej struktury .next
-  // Disable image optimization
   images: {
     unoptimized: true,
+  },
+  // Stary URL hubu `/app` psuje Docker standalone → przeniesiony na `/panel`
+  async redirects() {
+    return [
+      {
+        source: '/app',
+        destination: '/panel',
+        permanent: false,
+      },
+      {
+        source: '/app/:path*',
+        destination: '/panel',
+        permanent: false,
+      },
+    ];
   },
 };
 
 export default nextConfig;
-
-
