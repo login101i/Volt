@@ -482,23 +482,110 @@ html:not(.light) .volt-page .bg-teal-50 {
 }
 
 /* ——— Landing: Projekt 2027 vision (from projekt-2023-nowy-kierunek-volt.html) ——— */
+/* Full-bleed electrical hall — fixed, blends while scrolling */
+.volt-page[data-page='landing'] {
+  position: relative;
+  isolation: isolate;
+}
+
+.volt-landing-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100vw;
+  left: 50%;
+  right: auto;
+  margin-left: -50vw;
+  overflow: hidden;
+}
+
+.volt-landing-bg__photo {
+  position: absolute;
+  inset: 0;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  filter: saturate(0.55) contrast(1.05) brightness(0.72);
+  transform: scale(1.02);
+}
+
+.volt-landing-bg__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--volt-bg) 55%, transparent) 0%,
+      color-mix(in srgb, var(--volt-bg) 72%, transparent) 42%,
+      color-mix(in srgb, var(--volt-bg) 88%, transparent) 100%
+    ),
+    linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--volt-bg) 70%, transparent) 0%,
+      transparent 55%,
+      color-mix(in srgb, var(--volt-bg) 45%, transparent) 100%
+    );
+}
+
+html.light .volt-landing-bg__photo {
+  opacity: 0.18;
+  filter: saturate(0.4) contrast(0.95) brightness(1.15);
+}
+
+html.light .volt-landing-bg__veil {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--volt-bg) 65%, transparent) 0%,
+      color-mix(in srgb, var(--volt-bg) 80%, transparent) 50%,
+      color-mix(in srgb, var(--volt-bg) 90%, transparent) 100%
+    ),
+    linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--volt-bg) 75%, transparent),
+      transparent 60%
+    );
+}
+
+.volt-page[data-page='landing'] > :not(.volt-landing-bg) {
+  position: relative;
+  z-index: 1;
+}
+
 .volt-landing-hero {
   padding: 64px 0 40px;
 }
 
-.volt-landing-hero h1 {
-  font-size: clamp(46px, 7vw, 88px);
+.volt-landing-hero-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.95fr);
+  gap: clamp(20px, 4vw, 40px);
+  align-items: stretch;
+  margin: 16px 0 28px;
+}
+
+.volt-landing-hero-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.volt-landing-hero-copy h1 {
+  font-size: clamp(42px, 6.5vw, 84px);
   line-height: 1.05;
   letter-spacing: -0.055em;
-  max-width: 900px;
-  margin: 16px 0 20px;
+  margin: 0 0 18px;
   font-weight: 900;
 }
 
 .volt-landing-lead {
   font-size: clamp(16px, 2vw, 20px);
-  max-width: 680px;
-  margin-bottom: 28px;
+  max-width: 640px;
+  margin: 0;
+  line-height: 1.55;
 }
 
 .volt-landing-actions {
@@ -506,6 +593,111 @@ html:not(.light) .volt-page .bg-teal-50 {
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 36px;
+}
+
+/* ——— GitHub-style progress: yellow sparks, subtle ~3% presence ——— */
+.volt-activity {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  min-height: 100%;
+  display: flex;
+  align-items: stretch;
+  /* Soft grid; sparks boosted separately for readability */
+  opacity: 1;
+}
+
+.volt-activity-weeks {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  min-height: 168px;
+}
+
+.volt-activity-week {
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  height: 100%;
+}
+
+.volt-activity-cell {
+  width: 100%;
+  height: 100%;
+  min-height: 12px;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--volt-line) 35%, transparent);
+  display: grid;
+  place-items: center;
+  color: #e3b760;
+}
+
+.volt-activity-cell--empty {
+  visibility: hidden;
+  border-color: transparent;
+}
+
+.volt-activity-cell--pending {
+  opacity: 0.5;
+}
+
+.volt-activity-cell--l0 {
+  background: color-mix(in srgb, var(--volt-surface2) 18%, transparent);
+  border-color: color-mix(in srgb, var(--volt-line) 18%, transparent);
+  opacity: 0.35;
+}
+
+.volt-activity-cell--spark {
+  background: transparent;
+  border-color: transparent;
+  opacity: 1;
+}
+
+.volt-activity-spark {
+  width: 95%;
+  height: 95%;
+  max-width: 36px;
+  max-height: 36px;
+  min-width: 16px;
+  min-height: 16px;
+  display: block;
+  color: #ffd078;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, #e3b760 70%, transparent));
+}
+
+.volt-activity-cell--l1 .volt-activity-spark {
+  color: #e3b760;
+}
+
+.volt-activity-cell--l2 .volt-activity-spark {
+  color: #f0c56e;
+}
+
+.volt-activity-cell--l3 .volt-activity-spark {
+  color: #ffd078;
+}
+
+.volt-activity-cell--l4 .volt-activity-spark {
+  color: #ffe29a;
+}
+
+html.light .volt-activity-spark {
+  color: #b88620;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, #c9952a 55%, transparent));
+}
+
+@media (max-width: 820px) {
+  .volt-landing-hero-main {
+    grid-template-columns: 1fr;
+  }
+
+  .volt-activity-weeks {
+    min-height: 140px;
+    max-width: 420px;
+  }
 }
 
 .volt-landing-toc {
