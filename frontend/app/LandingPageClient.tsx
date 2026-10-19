@@ -1,13 +1,31 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import DevActivityGraph from '@/components/DevActivityGraph';
 import { useGlobalStyle } from '@/components/GlobalStyleProvider';
-import { APP_VERSION } from '@/lib/appVersion';
+import AppVersionBadge from '@/components/AppVersionBadge';
+import { MenuContextRightClick } from '@/components/RightClickMenu';
 
 /** Publiczna strona główna `/` — wizja Projektu 2027 + wejście do aplikacji pod `/panel`. */
 export default function LandingPageClient() {
-  const { theme, toggleTheme } = useGlobalStyle();
+  const { theme, toggleTheme, developMode, setDevelopMode } = useGlobalStyle();
+  const [devMenu, setDevMenu] = useState<{
+    open: boolean;
+    x: number;
+    y: number;
+  }>({ open: false, x: 0, y: 0 });
+
+  const closeDevMenu = useCallback(() => {
+    setDevMenu((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  const onDevContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDevMenu({ open: true, x: e.clientX, y: e.clientY });
+  };
 
   return (
     <div className="volt-page" data-page="landing">
@@ -27,9 +45,7 @@ export default function LandingPageClient() {
             <span className="volt-brand-text">
               <span className="volt-brand-title-row">
                 <strong>PROJEKT 2027</strong>
-                <span className="volt-app-version" title="Wersja aplikacji">
-                  {APP_VERSION}
-                </span>
+                <AppVersionBadge />
               </span>
               <span>Elektryka · Automatyka · Software · AI</span>
             </span>
@@ -43,8 +59,19 @@ export default function LandingPageClient() {
             <Link href="/panel" className="volt-btn volt-btn--secondary volt-btn--sm">
               Aplikacja
             </Link>
-            <Link href="/development" className="volt-btn volt-btn--ghost volt-btn--sm">
-              Dev
+            <Link
+              href="/development"
+              className={`volt-btn volt-btn--sm ${
+                developMode ? 'volt-btn--secondary volt-dev-btn--on' : 'volt-btn--ghost'
+              }`}
+              onContextMenu={onDevContextMenu}
+              title={
+                developMode
+                  ? 'Dev mode ON — PPM: menu · klik: tablica Development'
+                  : 'Development — PPM: włącz Dev mode'
+              }
+            >
+              Dev{developMode ? ' · on' : ''}
             </Link>
             <button
               type="button"
@@ -57,6 +84,30 @@ export default function LandingPageClient() {
         </div>
       </header>
 
+      {devMenu.open &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <MenuContextRightClick
+            position={{ top: devMenu.y, left: devMenu.x }}
+            onClose={closeDevMenu}
+            options={[
+              {
+                label: developMode ? 'Wyłącz Dev mode' : 'Dev mode',
+                action: true,
+                onClick: () => setDevelopMode(!developMode),
+              },
+              { divider: true },
+              {
+                label: 'Otwórz Development',
+                onClick: () => {
+                  window.location.href = '/development';
+                },
+              },
+            ]}
+          />,
+          document.body,
+        )}
+
       <main>
         <section className="volt-wrap volt-landing-hero" id="start">
           <div className="volt-landing-hero-main">
@@ -65,8 +116,7 @@ export default function LandingPageClient() {
                 Projekt <span className="volt-gradient-text">2027</span>
               </h1>
               <p className="volt-muted volt-landing-lead">
-                Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po
-                realizację i dokumentację.
+                Od zapytania klienta przez projekt rozdzielnicy po dokumentację.
                 <br className="volt-landing-lead-break" />
                 Centrum pracy zespołu elektryka i oprogramowania.
               </p>

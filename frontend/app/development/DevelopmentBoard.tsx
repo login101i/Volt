@@ -242,6 +242,12 @@ export default function DevelopmentBoard() {
     );
   }
 
+  const formOpen = addColumn != null || editingId != null;
+  const formColumnTitle =
+    addColumn != null
+      ? COLUMNS.find((c) => c.id === addColumn)?.title ?? 'To do'
+      : 'Edycja';
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       {error && (
@@ -255,6 +261,26 @@ export default function DevelopmentBoard() {
             Odśwież
           </button>
         </div>
+      )}
+
+      {formOpen && (
+        <IssuePopup
+          title={title}
+          description={description}
+          priority={priority}
+          saving={saving}
+          heading={
+            editingId
+              ? 'Edytuj zadanie'
+              : `Nowe zadanie · ${formColumnTitle}`
+          }
+          submitLabel={editingId ? 'Zapisz' : 'Dodaj'}
+          onTitle={setTitle}
+          onDescription={setDescription}
+          onPriority={setPriority}
+          onSubmit={onSubmit}
+          onCancel={closeForm}
+        />
       )}
 
       <div
@@ -273,7 +299,7 @@ export default function DevelopmentBoard() {
           return (
             <section
               key={col.id}
-              className={`flex min-h-[calc(100vh-11rem)] min-w-0 flex-col overflow-hidden rounded-xl border bg-[var(--volt-surface)] ${
+              className={`dev-glass-panel flex min-h-[calc(100vh-11rem)] min-w-0 flex-col overflow-hidden rounded-xl border ${
                 isDrop
                   ? 'border-[var(--volt-accent)] ring-1 ring-[var(--volt-accent)]'
                   : 'border-[var(--volt-line)]'
@@ -289,14 +315,14 @@ export default function DevelopmentBoard() {
               onDrop={(e) => onDrop(e, col.id)}
             >
               <header
-                className="flex items-center justify-between border-b border-[var(--volt-line)] px-3 py-2.5"
+                className="flex items-center justify-between border-b border-[var(--volt-line)]/60 px-3 py-2.5"
                 style={{ borderTop: `3px solid ${col.accent}` }}
               >
                 <div className="flex items-center gap-2">
                   <h2 className="text-sm font-semibold text-[var(--volt-text)]">
                     {col.title}
                   </h2>
-                  <span className="rounded-full bg-[var(--volt-surface2)] px-2 py-0.5 text-[11px] text-[var(--volt-muted)]">
+                  <span className="dev-glass-chip rounded-full border border-[var(--volt-line)] px-2 py-0.5 text-[11px] text-[var(--volt-muted)]">
                     {list.length}
                   </span>
                 </div>
@@ -311,42 +337,12 @@ export default function DevelopmentBoard() {
               </header>
 
               <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
-                {addColumn === col.id && (
-                  <IssueForm
-                    title={title}
-                    description={description}
-                    priority={priority}
-                    saving={saving}
-                    submitLabel="Dodaj"
-                    onTitle={setTitle}
-                    onDescription={setDescription}
-                    onPriority={setPriority}
-                    onSubmit={onSubmit}
-                    onCancel={closeForm}
-                  />
-                )}
-
-                {list.map((issue) =>
-                  editingId === issue.id ? (
-                    <IssueForm
-                      key={issue.id}
-                      title={title}
-                      description={description}
-                      priority={priority}
-                      saving={saving}
-                      submitLabel="Zapisz"
-                      onTitle={setTitle}
-                      onDescription={setDescription}
-                      onPriority={setPriority}
-                      onSubmit={onSubmit}
-                      onCancel={closeForm}
-                    />
-                  ) : (
+                {list.map((issue) => (
                     <article
                       key={issue.id}
                       draggable
                       onDragStart={(e) => onDragStart(e, issue.id)}
-                      className={`cursor-grab rounded-lg border bg-[var(--volt-surface2)] p-2.5 active:cursor-grabbing ${
+                      className={`dev-glass-card cursor-grab rounded-lg border p-2.5 active:cursor-grabbing ${
                         displayPriority(issue.priority) === 'high'
                           ? 'border-red-400/50'
                           : 'border-[var(--volt-line)]'
@@ -405,10 +401,9 @@ export default function DevelopmentBoard() {
                         </button>
                       </div>
                     </article>
-                  ),
-                )}
+                ))}
 
-                {list.length === 0 && addColumn !== col.id && (
+                {list.length === 0 && (
                   <p className="px-1 py-6 text-center text-xs text-[var(--volt-muted)]">
                     Przeciągnij kartę lub dodaj (+)
                   </p>
@@ -440,11 +435,12 @@ function AuthorDot({ id, size = 22 }: { id: DevAuthorId; size?: number }) {
   );
 }
 
-function IssueForm({
+function IssuePopup({
   title,
   description,
   priority,
   saving,
+  heading,
   submitLabel,
   onTitle,
   onDescription,
@@ -456,6 +452,7 @@ function IssueForm({
   description: string;
   priority: DevelopmentIssuePriority;
   saving: boolean;
+  heading: string;
   submitLabel: string;
   onTitle: (v: string) => void;
   onDescription: (v: string) => void;
@@ -463,51 +460,112 @@ function IssueForm({
   onSubmit: (e: FormEvent) => void;
   onCancel: () => void;
 }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onCancel]);
+
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-lg border border-[var(--volt-accent)]/40 bg-[var(--volt-surface)] p-2.5"
-    >
-      <input
-        autoFocus
-        value={title}
-        onChange={(e) => onTitle(e.target.value)}
-        placeholder="Tytuł"
-        className="mb-2 w-full rounded border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-2 py-1.5 text-sm text-[var(--volt-text)] outline-none focus:border-[var(--volt-accent)]"
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/45 backdrop-blur-md"
+        aria-label="Zamknij"
+        onClick={onCancel}
       />
-      <textarea
-        value={description}
-        onChange={(e) => onDescription(e.target.value)}
-        placeholder="Opis (opcjonalnie)"
-        rows={2}
-        className="mb-2 w-full resize-none rounded border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-2 py-1.5 text-xs text-[var(--volt-text)] outline-none focus:border-[var(--volt-accent)]"
-      />
-      <select
-        value={priority === 'high' ? 'high' : 'low'}
-        onChange={(e) =>
-          onPriority(e.target.value === 'high' ? 'high' : 'low')
-        }
-        className="mb-2 w-full rounded border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-2 py-1 text-xs text-[var(--volt-text)]"
+      <form
+        onSubmit={onSubmit}
+        className="dev-glass-popup relative z-[1] flex max-h-[min(92vh,720px)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dev-issue-popup-title"
       >
-        <option value="low">Priorytet: low</option>
-        <option value="high">Priorytet: high</option>
-      </select>
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={saving || !title.trim()}
-          className="volt-btn volt-btn--sm"
-        >
-          {saving ? '…' : submitLabel}
-        </button>
-        <button
-          type="button"
-          className="volt-btn volt-btn--ghost volt-btn--sm"
-          onClick={onCancel}
-        >
-          Anuluj
-        </button>
-      </div>
-    </form>
+        <div className="flex items-start justify-between gap-3 border-b border-[var(--volt-line)] px-5 py-4 sm:px-6">
+          <h2
+            id="dev-issue-popup-title"
+            className="text-lg font-bold text-[var(--volt-text)] sm:text-xl"
+          >
+            {heading}
+          </h2>
+          <button
+            type="button"
+            className="volt-btn volt-btn--ghost volt-btn--sm"
+            onClick={onCancel}
+            aria-label="Zamknij"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-6">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--volt-muted)]">
+              Tytuł
+            </span>
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => onTitle(e.target.value)}
+              placeholder="Krótki tytuł zadania…"
+              className="w-full rounded-xl border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-4 py-3 text-base text-[var(--volt-text)] outline-none focus:border-[var(--volt-accent)]"
+            />
+          </label>
+
+          <label className="flex min-h-0 flex-1 flex-col gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--volt-muted)]">
+              Opis
+            </span>
+            <textarea
+              value={description}
+              onChange={(e) => onDescription(e.target.value)}
+              placeholder="Szczegóły, kroki, kontekst…"
+              rows={8}
+              className="min-h-[180px] w-full flex-1 resize-y rounded-xl border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-4 py-3 text-base leading-relaxed text-[var(--volt-text)] outline-none focus:border-[var(--volt-accent)]"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--volt-muted)]">
+              Priorytet
+            </span>
+            <select
+              value={priority === 'high' ? 'high' : 'low'}
+              onChange={(e) =>
+                onPriority(e.target.value === 'high' ? 'high' : 'low')
+              }
+              className="w-full rounded-xl border border-[var(--volt-line)] bg-[var(--volt-surface2)] px-4 py-3 text-sm text-[var(--volt-text)]"
+            >
+              <option value="low">Low</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--volt-line)] px-5 py-4 sm:px-6">
+          <button
+            type="button"
+            className="volt-btn volt-btn--ghost"
+            onClick={onCancel}
+          >
+            Anuluj
+          </button>
+          <button
+            type="submit"
+            disabled={saving || !title.trim()}
+            className="volt-btn"
+          >
+            {saving ? 'Zapisywanie…' : submitLabel}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -23,6 +23,7 @@ export default function DevelopmentPage() {
       title="Development"
       backHref="/"
       wrap={false}
+      className="volt-page--dev-glass"
       actions={
         <Link href="/panel" className="volt-btn volt-btn--ghost volt-btn--sm">
           Panel
@@ -57,10 +58,10 @@ export default function DevelopmentPage() {
                   key={id}
                   type="button"
                   onClick={() => {
-                    setDevAuthor(id);
+                    setDevAuthor(id, { explicit: true });
                     setAuthor(id);
                   }}
-                  className="flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs transition"
+                  className="dev-glass-chip flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs transition"
                   style={{
                     borderColor: active ? meta.bg : 'var(--volt-line)',
                     opacity: active ? 1 : 0.55,
