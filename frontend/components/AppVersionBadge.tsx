@@ -250,30 +250,27 @@ export default function AppVersionBadge() {
     let cancelled = false;
     try {
       const seen = localStorage.getItem(APP_VERSION_SEEN_KEY);
-      if (seen == null) {
-        // First ever visit — zapamiętaj wersję bez animacji (jak F6).
-        localStorage.setItem(APP_VERSION_SEEN_KEY, APP_VERSION);
-        return;
-      }
+      // Każde urządzenie / przeglądarka ma własne localStorage.
+      // Animacja: gdy ta przeglądarka jeszcze nie widziała bieżącej APP_VERSION
+      // (pierwsza wizyta LUB podbicie wersji). Potem zapisuje się i nie powtarza.
       if (seen === APP_VERSION) return;
 
-      // Nowa APP_VERSION — poczekaj na layout headera, potem celebruj.
       const kick = window.setTimeout(() => {
         if (!cancelled) startCelebration(true);
-      }, 180);
+      }, 280);
       return () => {
         cancelled = true;
         window.clearTimeout(kick);
         stopCelebration(false);
       };
     } catch {
-      /* private mode */
+      /* private mode / zablokowany storage — bez animacji */
     }
     return () => {
       cancelled = true;
       stopCelebration(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only version bump
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only version check
   }, []);
 
   const onVersionClick = () => {
