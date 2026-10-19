@@ -47,6 +47,7 @@ import ordersRouter from './routes/orders';
 import offersRouter from './routes/offers';
 import uploadRouter from './routes/upload';
 import componentsRouter from './routes/components';
+import developmentIssuesRouter from './routes/developmentIssues';
 
 // ============================================================================
 // INITIALIZATION FUNCTIONS
@@ -75,6 +76,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/offers', offersRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/components', componentsRouter);
+app.use('/api/development-issues', developmentIssuesRouter);
 
 console.log('✅ API routes mounted successfully');
 console.log('📊 Routes configured:');
@@ -83,5 +85,6 @@ console.log('   • /api/orders - Orders management');
 console.log('   • /api/offers - Offers management');
 console.log('   • /api/upload - File upload');
 console.log('   • /api/components - Components database');
+console.log('   • /api/development-issues - Development kanban');
 
 export default app;

@@ -58,3 +58,30 @@ ON DUPLICATE KEY UPDATE `fuse_type` = VALUES(`fuse_type`);
 --   (`id`, `name`, `fields`, `description`, `price`, `image`, `category`, `subcategory`)
 -- VALUES
 --   ('fuse16A', 'Wyłącznik nadprądowy 16A', 1, 'B16 1P', 25.00, '', 'Zabezpieczenia', 'Wyłączniki nadprądowe');
+
+-- ---------------------------------------------------------------------------
+-- DevelopmentIssues — kanban /development (API: /api/development-issues)
+-- Pełny skrypt: server/sql/create_development_issues.sql
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `DevelopmentIssues` (
+  `Id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `PublicId`        VARCHAR(64)  NOT NULL COMMENT 'Client-facing id (np. dev-…)',
+  `Title`           VARCHAR(500) NOT NULL,
+  `Description`     TEXT         NULL,
+  `Page`            VARCHAR(512) NULL,
+  `ScreenshotUrl`   VARCHAR(1024) NULL,
+  `Flag`            ENUM('pending', 'testing', 'corrected', 'blocked', 'skipped')
+                      NOT NULL DEFAULT 'pending',
+  `Priority`        ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
+  `PlannedDate`     DATE         NULL,
+  `CreatedBy`       VARCHAR(255) NULL,
+  `CreatedByUserId` INT          NULL,
+  `SourceHost`      VARCHAR(255) NULL,
+  `CreatedAt`       DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `UpdatedAt`       DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+                                 ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UQ_DevelopmentIssues_PublicId` (`PublicId`),
+  KEY `IX_DevelopmentIssues_Flag_CreatedAt` (`Flag`, `CreatedAt` DESC),
+  KEY `IX_DevelopmentIssues_CreatedAt` (`CreatedAt` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

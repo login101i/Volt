@@ -78,6 +78,25 @@ export const api = {
     }),
   },
 
+  // Development issues (kanban)
+  developmentIssues: {
+    getAll: () => api.fetch('/api/development-issues'),
+    create: (data: unknown) =>
+      api.fetch('/api/development-issues', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (data: unknown) =>
+      api.fetch('/api/development-issues', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      api.fetch(`/api/development-issues/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      }),
+  },
+
   // Upload API
   upload: {
     componentImage: async (componentId: string, file: File) => {

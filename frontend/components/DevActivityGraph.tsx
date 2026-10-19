@@ -72,6 +72,34 @@ function SparkIcon({ level }: { level: number }) {
   );
 }
 
+/**
+ * Weekend + Monday work streak (pt → sb → nd → pn).
+ * Today Mon → 4 sparks; Sun → 3; Sat → 2; Fri → 1.
+ */
+function applyWorkStreak(map: Map<string, number>): void {
+  const today = warsawToday();
+  const wd = weekdaySun0(today); // 0=Sun … 5=Fri 6=Sat 1=Mon
+  const streakDays: string[] = [];
+  if (wd === 1) {
+    // Monday → Friday, Saturday, Sunday, Monday
+    streakDays.push(
+      addDays(today, -3),
+      addDays(today, -2),
+      addDays(today, -1),
+      today,
+    );
+  } else if (wd === 0) {
+    streakDays.push(addDays(today, -2), addDays(today, -1), today);
+  } else if (wd === 6) {
+    streakDays.push(addDays(today, -1), today);
+  } else if (wd === 5) {
+    streakDays.push(today);
+  }
+  for (const day of streakDays) {
+    map.set(day, Math.max(map.get(day) || 0, 1));
+  }
+}
+
 export default function DevActivityGraph() {
   const [counts, setCounts] = useState<Map<string, number>>(new Map());
   const [loaded, setLoaded] = useState(false);
@@ -89,38 +117,14 @@ export default function DevActivityGraph() {
           if (d.count > 0) map.set(d.date, d.count);
         }
 
-        // Weekend work streak: Fri + Sat + Sun sparks (even before today's push)
-        const today = warsawToday();
-        const wd = weekdaySun0(today); // 0=Sun … 5=Fri 6=Sat
-        const streakDays: string[] = [];
-        if (wd === 0) {
-          // Sunday → Friday, Saturday, Sunday
-          streakDays.push(addDays(today, -2), addDays(today, -1), today);
-        } else if (wd === 6) {
-          streakDays.push(addDays(today, -1), today);
-        } else if (wd === 5) {
-          streakDays.push(today);
-        }
-        for (const day of streakDays) {
-          map.set(day, Math.max(map.get(day) || 0, 1));
-        }
+        // Work streak: Fri…Mon sparks (pt–sb–nd–pn)
+        applyWorkStreak(map);
 
         setCounts(map);
       } catch {
-        // Still show Fri–Sun streak when API is down
+        // Still show Fri–Mon streak when API is down
         const map = new Map<string, number>();
-        const today = warsawToday();
-        const wd = weekdaySun0(today);
-        if (wd === 0) {
-          map.set(addDays(today, -2), 1);
-          map.set(addDays(today, -1), 1);
-          map.set(today, 1);
-        } else if (wd === 6) {
-          map.set(addDays(today, -1), 1);
-          map.set(today, 1);
-        } else if (wd === 5) {
-          map.set(today, 1);
-        }
+        applyWorkStreak(map);
         if (!cancelled) setCounts(map);
       } finally {
         if (!cancelled) setLoaded(true);

@@ -57,8 +57,18 @@ try {
   console.error('❌ Error loading Components routes:', error.message);
 }
 
+// Development issues routes
+try {
+  console.log('🛠️  Loading DevelopmentIssues routes...');
+  const developmentIssuesRoutes = require('./developmentIssues');
+  router.use('/development-issues', developmentIssuesRoutes);
+  console.log('✅ DevelopmentIssues routes loaded');
+} catch (error) {
+  console.error('❌ Error loading DevelopmentIssues routes:', error.message);
+}
+
 console.log('=== API ROUTES SETUP COMPLETED ===');
-console.log(`📊 Total route modules configured: 5`);
+console.log(`📊 Total route modules configured: 6`);
 
 module.exports = router;
 

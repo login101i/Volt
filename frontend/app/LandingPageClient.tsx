@@ -25,11 +25,13 @@ export default function LandingPageClient() {
               ϟ
             </span>
             <span className="volt-brand-text">
-              <strong>PROJEKT 2027</strong>
+              <span className="volt-brand-title-row">
+                <strong>PROJEKT 2027</strong>
+                <span className="volt-app-version" title="Wersja aplikacji">
+                  {APP_VERSION}
+                </span>
+              </span>
               <span>Elektryka · Automatyka · Software · AI</span>
-            </span>
-            <span className="volt-app-version" title="Wersja aplikacji">
-              {APP_VERSION}
             </span>
           </div>
           <nav className="volt-header-meta" aria-label="Sekcje strony">
@@ -40,6 +42,9 @@ export default function LandingPageClient() {
             <a href="#plan">Plan</a>
             <Link href="/panel" className="volt-btn volt-btn--secondary volt-btn--sm">
               Aplikacja
+            </Link>
+            <Link href="/development" className="volt-btn volt-btn--ghost volt-btn--sm">
+              Dev
             </Link>
             <button
               type="button"
@@ -54,15 +59,16 @@ export default function LandingPageClient() {
 
       <main>
         <section className="volt-wrap volt-landing-hero" id="start">
-          <p className="volt-eyebrow">W trakcie walidacji</p>
           <div className="volt-landing-hero-main">
             <div className="volt-landing-hero-copy">
               <h1>
                 Projekt <span className="volt-gradient-text">2027</span>
               </h1>
               <p className="volt-muted volt-landing-lead">
-                Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po realizację
-                i dokumentację. Centrum pracy zespołu elektryka i oprogramowania.
+                Od zapytania klienta przez projekt rozdzielnicy i ofertę Volt — po
+                realizację i dokumentację.
+                <br className="volt-landing-lead-break" />
+                Centrum pracy zespołu elektryka i oprogramowania.
               </p>
             </div>
             <DevActivityGraph />

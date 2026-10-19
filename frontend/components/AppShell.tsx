@@ -66,9 +66,6 @@ export default function AppShell({
               >
                 {theme === 'dark' ? '☀ Jasny' : '☾ Ciemny'}
               </button>
-              <button type="button" className="volt-btn volt-btn--secondary volt-btn--sm">
-                Wyloguj
-              </button>
             </div>
           </div>
         </header>
