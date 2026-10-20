@@ -1,6 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import {
+  loadLocalActivity,
+  markTodayActive,
+  mergeActivityMaps,
+  saveLocalActivity,
+  seedRecentWorkIfEmpty,
+} from '@/lib/devActivityLocal';
 
 type ActivityDay = {
   date: string;
@@ -73,15 +80,13 @@ function SparkIcon({ level }: { level: number }) {
 }
 
 /**
- * Weekend + Monday work streak (pt → sb → nd → pn).
- * Today Mon → 4 sparks; Sun → 3; Sat → 2; Fri → 1.
+ * Weekend + Monday work streak (pt → sb → nd → pn) — uzupełnia lokalny dziennik.
  */
 function applyWorkStreak(map: Map<string, number>): void {
   const today = warsawToday();
   const wd = weekdaySun0(today); // 0=Sun … 5=Fri 6=Sat 1=Mon
   const streakDays: string[] = [];
   if (wd === 1) {
-    // Monday → Friday, Saturday, Sunday, Monday
     streakDays.push(
       addDays(today, -3),
       addDays(today, -2),
@@ -94,6 +99,15 @@ function applyWorkStreak(map: Map<string, number>): void {
     streakDays.push(addDays(today, -1), today);
   } else if (wd === 5) {
     streakDays.push(today);
+  } else if (wd >= 2 && wd <= 4) {
+    // Wt–Cz: zachowaj pamięć o weekendzie + dziś
+    streakDays.push(
+      addDays(today, -(wd + 2)), // piątek
+      addDays(today, -(wd + 1)), // sobota
+      addDays(today, -wd), // niedziela
+      addDays(today, -(wd - 1)), // poniedziałek
+      today,
+    );
   }
   for (const day of streakDays) {
     map.set(day, Math.max(map.get(day) || 0, 1));
@@ -101,31 +115,46 @@ function applyWorkStreak(map: Map<string, number>): void {
 }
 
 export default function DevActivityGraph() {
-  const [counts, setCounts] = useState<Map<string, number>>(new Map());
+  const [counts, setCounts] = useState<Map<string, number>>(() => {
+    if (typeof window === 'undefined') return new Map();
+    let local = loadLocalActivity();
+    local = seedRecentWorkIfEmpty(local);
+    applyWorkStreak(local);
+    return markTodayActive(local);
+  });
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      let local = loadLocalActivity();
+      local = seedRecentWorkIfEmpty(local);
+      applyWorkStreak(local);
+      local = markTodayActive(local);
+      if (!cancelled) setCounts(new Map(local));
+
       try {
         const res = await fetch('/api/dev-activity', { cache: 'no-store' });
         if (!res.ok) throw new Error('failed');
         const json = (await res.json()) as DevActivity;
         if (cancelled) return;
-        const map = new Map<string, number>();
+
+        const fromApi = new Map<string, number>();
         for (const d of json.days) {
-          if (d.count > 0) map.set(d.date, d.count);
+          if (d.count > 0) fromApi.set(d.date, d.count);
         }
 
-        // Work streak: Fri…Mon sparks (pt–sb–nd–pn)
-        applyWorkStreak(map);
-
-        setCounts(map);
+        const merged = mergeActivityMaps(local, fromApi);
+        applyWorkStreak(merged);
+        const withToday = markTodayActive(merged);
+        saveLocalActivity(withToday);
+        setCounts(new Map(withToday));
       } catch {
-        // Still show Fri–Mon streak when API is down
-        const map = new Map<string, number>();
-        applyWorkStreak(map);
-        if (!cancelled) setCounts(map);
+        // Lokalny dziennik wystarczy gdy API padnie
+        if (!cancelled) {
+          saveLocalActivity(local);
+          setCounts(new Map(local));
+        }
       } finally {
         if (!cancelled) setLoaded(true);
       }
@@ -138,7 +167,6 @@ export default function DevActivityGraph() {
   const weeks = useMemo(() => {
     const today = warsawToday();
     const todayWd = weekdayMon0(today);
-    // Monday of the week that contains today (week ends on Sunday)
     const thisWeekMon = addDays(today, -todayWd);
     const startMonday = addDays(thisWeekMon, -(WEEKS - 1) * 7);
 
@@ -146,7 +174,6 @@ export default function DevActivityGraph() {
     for (let w = 0; w < WEEKS; w++) {
       const week: ActivityDay[] = [];
       for (let d = 0; d < 7; d++) {
-        // Rows: Mon → Tue → … → Sat → Sun (last)
         const date = addDays(startMonday, w * 7 + d);
         if (date > today) {
           week.push({ date, count: -1 });
@@ -182,7 +209,7 @@ export default function DevActivityGraph() {
                 <span
                   key={`${day.date}-${di}`}
                   className={`volt-activity-cell${active ? ` volt-activity-cell--spark volt-activity-cell--l${level}` : ' volt-activity-cell--l0'}${!loaded ? ' volt-activity-cell--pending' : ''}`}
-                  title={day.date}
+                  title={`${day.date}${active ? ` · ${day.count}` : ''}`}
                 >
                   {active ? <SparkIcon level={level} /> : null}
                 </span>
